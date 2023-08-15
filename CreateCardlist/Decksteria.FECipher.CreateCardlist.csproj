@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net7.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Decksteria.FECipher\Decksteria.FECipher.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="FECipher">
+      <HintPath>..\..\..\Multi-TCG Deck Builder Projects\FECipher\FECipher\bin\Release\net6.0\FECipher.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>
