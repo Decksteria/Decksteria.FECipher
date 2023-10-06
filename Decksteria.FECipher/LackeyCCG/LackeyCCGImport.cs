@@ -4,13 +4,14 @@ using Decksteria.Core;
 using Decksteria.Core.Models;
 using Decksteria.FECipher.Constants;
 using Decksteria.FECipher.LackeyCCG.Models;
+using Decksteria.FECipher.Models;
 using Decksteria.FECipher.Services;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
 
-internal class LackeyCCGImport : IDecksteriaImport
+internal sealed class LackeyCCGImport : IDecksteriaImport
 
 {
     public string Name => "LackeyCCG";
@@ -38,7 +39,7 @@ internal class LackeyCCGImport : IDecksteriaImport
 
         if (lackeyDeck == null)
         {
-            return new Decklist("FECipher", currentFormatName, new Dictionary<string, IEnumerable<CardArt>>());
+            return new Decklist(FECipher.PlugInName, currentFormatName, new Dictionary<string, IEnumerable<CardArt>>());
         }
 
         var mcZone = lackeyDeck.Decks.First(deck => deck.Name == "MC");
@@ -48,7 +49,7 @@ internal class LackeyCCGImport : IDecksteriaImport
         var mainCharDeck = mcZone.Cards.Select(card => lackeyDictionary.GetValueOrDefault(card.Name.Id)).Where(card => card != null).Select(card => card!);
         var mainDeck = mainZone.Cards.Select(card => lackeyDictionary.GetValueOrDefault(card.Name.Id)).Where(card => card != null).Select(card => card!);
 
-        var file = new Decklist("FECipher", currentFormatName, new Dictionary<string, IEnumerable<CardArt>>()
+        var file = new Decklist(FECipher.PlugInName, currentFormatName, new Dictionary<string, IEnumerable<CardArt>>()
         {
             { DeckConstants.MainCharacterDeck, mainCharDeck },
             { DeckConstants.MainDeck, mainDeck }
@@ -60,7 +61,12 @@ internal class LackeyCCGImport : IDecksteriaImport
     {
         var dictionary = new Dictionary<string, CardArt>();
         var cardlist = await feCardlistService.GetCardList();
-        var arts = cardlist.SelectMany(card => card.AltArts.Select(art => new KeyValuePair<string, CardArt>(art.LackeyCCGId, new CardArt(card.CardId, art.ArtId, art.DownloadUrl, art.FileName, card.Details))));
+        var arts = cardlist.SelectMany(card => card.AltArts.Select(art => ToLackeyCCGKeyValue(card, art)));
         return arts.ToDictionary(kv => kv.Key, kv => kv.Value).AsReadOnly();
+
+        KeyValuePair<string, CardArt> ToLackeyCCGKeyValue(FECard card, FEAlternateArts art)
+        {
+            return new KeyValuePair<string, CardArt>(art.LackeyCCGId, new CardArt(card.CardId, art.ArtId, art.DownloadUrl, art.FileName, card.Details));
+        }
     }
 }

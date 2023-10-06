@@ -3,7 +3,7 @@
 using Decksteria.Core;
 using System.Text.Json.Serialization;
 
-public class FEAlternateArts : IDecksteriaCardArt
+public sealed class FEAlternateArts : IDecksteriaCardArt
 {
     [JsonPropertyName("ID")]
     [JsonPropertyOrder(0)]

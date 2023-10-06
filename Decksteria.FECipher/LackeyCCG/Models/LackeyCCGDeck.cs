@@ -4,7 +4,7 @@ using System.Xml.Linq;
 using System.Xml.Serialization;
 
 [XmlRoot("deck")]
-internal class LackeyCCGDeck
+internal sealed class LackeyCCGDeck
 {
     [XmlAttribute("version")]
     public string Version { get; set; } = "0.8";

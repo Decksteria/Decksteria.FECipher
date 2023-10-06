@@ -4,7 +4,7 @@ using Decksteria.Core.Data;
 using Decksteria.FECipher.Models;
 using System.Text.Json;
 
-internal class FECardListService : IFECardListService
+internal sealed class FECardListService : IFECardListService
 {
     private Lazy<Task<IEnumerable<FECard>>> cardList;
 

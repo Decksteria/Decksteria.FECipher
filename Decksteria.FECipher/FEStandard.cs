@@ -1,5 +1,6 @@
 ﻿namespace Decksteria.FECipher;
 
+using Decksteria.FECipher.Constants;
 using Decksteria.FECipher.Models;
 using Decksteria.FECipher.Services;
 using System.Collections.Generic;
@@ -15,7 +16,7 @@ internal sealed class FEStandard : FEFormat
         this.cardListService = cardListService;
     }
 
-    public override string Name => "Standard";
+    public override string Name => FormatConstants.Standard;
 
     public override string DisplayName => "Standard Format";
 

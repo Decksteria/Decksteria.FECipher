@@ -4,7 +4,7 @@ using Decksteria.Core;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
-public class FECard : IDecksteriaCard
+public sealed class FECard : IDecksteriaCard
 {
     [JsonPropertyName("ID")]
     [JsonPropertyOrder(0)]

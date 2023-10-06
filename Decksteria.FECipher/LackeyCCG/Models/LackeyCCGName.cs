@@ -2,7 +2,7 @@
 
 using System.Xml.Serialization;
 
-internal class LackeyCCGName
+internal sealed class LackeyCCGName
 {
     // This is the attribute that represents the id of the name
     [XmlAttribute("id")]

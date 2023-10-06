@@ -136,7 +136,6 @@ foreach (var vitFile in cipherVitFiles)
         var supportEffect = fields[17].Replace("%%", ",").Replace("$$", "\n").Trim();
         // var artcount = fields[18].Trim();
         var rarities = fields[19].Split('/');
-        var arts = rarities.Select(rarity => $"{code}{rarity.Trim()}");
 
         if (character == "Azel")
         {
@@ -181,10 +180,10 @@ foreach (var vitFile in cipherVitFiles)
         {
             var card = matchingCards.First();
             UpdateFECard(card, cost, cccost, cclass, colors, attack, support, minRange, maxRange, effect, supportEffect, types);
-            foreach (var art in arts)
+            foreach (var rarity in rarities)
             {
-                UpdateArts(card, cipherVitId, art, set);
-                cipherVitId += "+";
+                var artCipherId = rarities.Count() == 2 && rarity.EndsWith("+") ? cipherVitId + "+" : cipherVitId;
+                UpdateArts(card, artCipherId, $"{code}{rarity.Trim()}", set, rarity);
             }
         }
         else if (matchingCards.Count() > 1)
@@ -198,10 +197,10 @@ foreach (var vitFile in cipherVitFiles)
 
             var correctCard = matchingCards.First(art => art.ID == correctId);
             UpdateFECard(correctCard, cost, cccost, cclass, colors, attack, support, minRange, maxRange, effect, supportEffect, types);
-            foreach (var art in arts)
+            foreach (var rarity in rarities)
             {
-                UpdateArts(correctCard, cipherVitId, art, set);
-                cipherVitId += "+";
+                var artCipherId = rarities.Count() == 2 && rarity.EndsWith("+") ? cipherVitId + "+" : cipherVitId;
+                UpdateArts(correctCard, artCipherId, $"{code}{rarity.Trim()}", set, rarity);
             }
         }
         else
@@ -210,10 +209,10 @@ foreach (var vitFile in cipherVitFiles)
             var correctId = Console.ReadLine()?.Trim();
             var correctCard = feCards.First(card => card.ID == correctId);
             UpdateFECard(correctCard, cost, cccost, cclass, colors, attack, support, minRange, maxRange, effect, supportEffect, types);
-            foreach (var art in arts)
+            foreach (var rarity in rarities)
             {
-                UpdateArts(correctCard, cipherVitId, art, set);
-                cipherVitId += "+";
+                var artCipherId = rarities.Count() == 2 && rarity.EndsWith("+") ? cipherVitId + "+" : cipherVitId;
+                UpdateArts(correctCard, artCipherId, $"{code}{rarity.Trim()}", set, rarity);
             }
         }
     }
@@ -248,7 +247,7 @@ var newFECards = feCards.Select(card =>
         AltArts = card.altArts.Select(art =>
         {
             var regex = new Regex(@"[A-Z][0-9]+\-[0-9]+");
-            var rarity = regex.Replace(art.SetCode, "");
+            var rarity = regex.Replace(art.Id, "");
             return new Decksteria.FECipher.Models.FEAlternateArts
             {
                 ArtId = card.altArts.IndexOf(art),
@@ -292,7 +291,7 @@ void UpdateFECard(FECard card, string cost, string cccost, string cclass, string
     }
 }
 
-void UpdateArts(FECard card, string cipherVitId, string CardCode, string SetCode)
+void UpdateArts(FECard card, string cipherVitId, string CardCode, string SetCode, string rarity)
 {
     var matchingArts = card.altArts.Where(art => art.Id == CardCode);
     if (matchingArts.Any())

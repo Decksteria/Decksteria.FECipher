@@ -2,12 +2,16 @@
 
 using Decksteria.Core;
 using Decksteria.Core.Data;
+using Decksteria.FECipher.CipherVit;
 using Decksteria.FECipher.LackeyCCG;
+using Microsoft.Extensions.DependencyInjection;
 using System.Collections.Generic;
 
 public sealed class FECipher : IDecksteriaGame
 {
-    public string Name => "FECipher";
+    public const string PlugInName = "FECipher";
+
+    public string Name => PlugInName;
 
     public string DisplayName => "Fire Emblem Cipher 0";
 
@@ -27,9 +31,14 @@ public sealed class FECipher : IDecksteriaGame
 
         Importers = new IDecksteriaImport[]
         {
-            new LackeyCCGImport(cardlistService)
+            new LackeyCCGImport(cardlistService),
+            new CipherVitImport(cardlistService)
         };
-        Exporters = Array.Empty<IDecksteriaExport>();
+        Exporters = new IDecksteriaExport[]
+        {
+            new LackeyCCGExport(cardlistService),
+            new CipherVitExport(cardlistService)
+        };
     }
 
     public IEnumerable<IDecksteriaFormat> Formats { get; }

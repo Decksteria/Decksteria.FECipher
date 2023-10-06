@@ -1,11 +1,9 @@
 ﻿namespace Decksteria.FECipher;
 
-using Decksteria.Core.Data;
+using Decksteria.FECipher.Constants;
 using Decksteria.FECipher.Models;
 using Decksteria.FECipher.Services;
-using System;
 using System.Collections.ObjectModel;
-using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -18,7 +16,7 @@ internal class FEUnlimited : FEFormat
         this.cardListService = cardListService;
     }
 
-    public override string Name => "Unlimited";
+    public override string Name => FormatConstants.Unlimited;
 
     public override string DisplayName => "Unlimited Format";
 

@@ -12,7 +12,7 @@ using Decksteria.FECipher.Constants;
 using Decksteria.FECipher.LackeyCCG.Models;
 using Decksteria.FECipher.Services;
 
-internal class LackeyCCGExport : IDecksteriaExport
+internal sealed class LackeyCCGExport : IDecksteriaExport
 {
     public string Name => "LackeyCCG";
 

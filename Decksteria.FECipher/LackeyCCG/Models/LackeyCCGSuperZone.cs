@@ -2,7 +2,7 @@
 
 using System.Xml.Serialization;
 
-internal class LackeyCCGSuperZone
+internal sealed class LackeyCCGSuperZone
 {
     [XmlAttribute("name")]
     public string Name { get; set; } = string.Empty;
