@@ -310,6 +310,7 @@ internal abstract class FEFormat : IDecksteriaFormat
         return formatCards[cardId];
     }
 
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0066:Convert switch statement to expression", Justification = "Range matching only uses listed Comparison Types.")]
     private static bool RangeMatchesFilter(FECard card, SearchFieldFilter filter)
     {
         if (filter.Value == null)

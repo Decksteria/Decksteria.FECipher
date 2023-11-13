@@ -35,9 +35,8 @@ internal sealed class LackeyCCGImport : IDecksteriaImport
         // Change Format
         var currentFormatName = currentFormat.Name;
         var xmlSerializer = new XmlSerializer(typeof(LackeyCCGDeck));
-        var lackeyDeck = xmlSerializer.Deserialize(memoryStream) as LackeyCCGDeck;
 
-        if (lackeyDeck == null)
+        if (xmlSerializer.Deserialize(memoryStream) is not LackeyCCGDeck lackeyDeck)
         {
             return new Decklist(FECipher.PlugInName, currentFormatName, new Dictionary<string, IEnumerable<CardArt>>());
         }
