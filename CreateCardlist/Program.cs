@@ -1,7 +1,5 @@
 ﻿// See https://aka.ms/new-console-template for more information
-using Decksteria.FECipher;
 using FECipher;
-using System.Security.Cryptography;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 
@@ -15,7 +13,7 @@ string jsonText = File.ReadAllText(OldJsonFile);
 JsonElement jsonDeserialize = JsonSerializer.Deserialize<dynamic>(jsonText);
 var jsonEnumerator = jsonDeserialize.EnumerateArray();
 
-List<FECard> feCards = new List<FECard>();
+List<FECard> feCards = [];
 foreach (var jsonCard in jsonEnumerator)
 {
     string? id = jsonCard.GetProperty("CardID").GetString();
@@ -23,9 +21,8 @@ foreach (var jsonCard in jsonEnumerator)
     string? title = jsonCard.GetProperty("Title").GetString();
     string[]? colors = jsonCard.GetProperty("Color").Deserialize<string[]>();
     string? cost = jsonCard.GetProperty("Cost").GetString();
-    JsonElement classChangeProperty;
     string? cccost = null;
-    if (jsonCard.TryGetProperty("ClassChangeCost", out classChangeProperty))
+    if (jsonCard.TryGetProperty("ClassChangeCost", out var classChangeProperty))
     {
         cccost = classChangeProperty.GetString();
     }
@@ -37,9 +34,8 @@ foreach (var jsonCard in jsonEnumerator)
     string? attack = jsonCard.GetProperty("Attack").GetString();
     string? support = jsonCard.GetProperty("Support").GetString();
     string? skill = jsonCard.GetProperty("Skill").GetString();
-    JsonElement supportSkillProperty;
     string? supportSkill = null;
-    if (jsonCard.TryGetProperty("SupportSkill", out supportSkillProperty))
+    if (jsonCard.TryGetProperty("SupportSkill", out var supportSkillProperty))
     {
         supportSkill = supportSkillProperty.GetString();
     }
@@ -47,7 +43,7 @@ foreach (var jsonCard in jsonEnumerator)
     string? rarity = jsonCard.GetProperty("Rarity").GetString();
     int seriesNo = jsonCard.GetProperty("SeriesNumber").GetInt32();
     var altArtEnumerator = jsonCard.GetProperty("AlternateArts").EnumerateArray();
-    List<FEAlternateArts> altArts = new List<FEAlternateArts>();
+    List<FEAlternateArts> altArts = [];
 
     foreach (var altArt in altArtEnumerator)
     {
@@ -65,17 +61,17 @@ foreach (var jsonCard in jsonEnumerator)
             throw new ArgumentException("JSON Field AlternateArts is missing a Non-Nullable Property.");
         }
 
-        FEAlternateArts alt = new FEAlternateArts(code, setNo, image, lackeyID, lackeyName, cipherVitID, imageURL.Trim());
+        var alt = new FEAlternateArts(code, setNo, image, lackeyID, lackeyName, cipherVitID, imageURL.Trim());
         altArts.Add(alt);
     }
 
     if (id == null || character == null || title == null || colors == null || cost == null || cardClass == null || types == null ||
         attack == null || support == null || skill == null || rarity == null)
     {
-        throw new ArgumentException(String.Format("JSON Object {0}: {1} is missing a Non-Nullabe Property.", character, title));
+        throw new ArgumentException(string.Format("JSON Object {0}: {1} is missing a Non-Nullabe Property.", character, title));
     }
 
-    FECard card = new FECard(id, character, title, colors, cost, cccost, cardClass, types, minRange,
+    var card = new FECard(id, character, title, colors, cost, cccost, cardClass, types, minRange,
         maxRange, attack, support, skill, supportSkill, rarity, seriesNo, altArts);
 
     feCards.Add(card);
@@ -83,22 +79,26 @@ foreach (var jsonCard in jsonEnumerator)
 
 Console.WriteLine("Finished loading old FE Cipher JSON.");
 
-var idMapping = new Dictionary<string, string>();
-idMapping.Add("B04-017", "Tiki.MirageUta-loid");
-idMapping.Add("B04-017X", "Tiki.MirageUta-loid.2");
-idMapping.Add("B20-001", "CorrinKingdomofValla.MonarchForgingaNewFuture");
-idMapping.Add("B20-001X", "CorrinKingdomofValla.MonarchForgingaNewFuture.2");
-idMapping.Add("S04-003", "Camilla.BewitchingMaligKnight");
-idMapping.Add("B11-101", "Camilla.BewitchingMaligKnight.2");
+var idMapping = new Dictionary<string, string>
+{
+    { "B04-017", "Tiki.MirageUta-loid" },
+    { "B04-017X", "Tiki.MirageUta-loid.2" },
+    { "B20-001", "CorrinKingdomofValla.MonarchForgingaNewFuture" },
+    { "B20-001X", "CorrinKingdomofValla.MonarchForgingaNewFuture.2" },
+    { "S04-003", "Camilla.BewitchingMaligKnight" },
+    { "B11-101", "Camilla.BewitchingMaligKnight.2" }
+};
 
-var downloadLocations = new Dictionary<string, string>();
-downloadLocations.Add("B02-093R+", "https://s3-wiki.serenesforest.net/c/cc/B02-093%2B.png");
-downloadLocations.Add("B03-047SR+", "https://s3-wiki.serenesforest.net/9/94/B03-047%2B.png");
-downloadLocations.Add("B04-009R+", "https://s3-wiki.serenesforest.net/c/c2/B04-009%2B.png");
-downloadLocations.Add("P14-009PRX", "https://s3-wiki.serenesforest.net/a/a6/P14-009X.png");
-downloadLocations.Add("P16-009PRX", "https://s3-wiki.serenesforest.net/5/55/P16-009X.png");
-downloadLocations.Add("B01-007ST", "https://s3-wiki.serenesforest.net/6/6b/B01-007ST.png");
-downloadLocations.Add("B01-009ST", "https://s3-wiki.serenesforest.net/1/10/B01-009ST.png");
+var downloadLocations = new Dictionary<string, string>
+{
+    { "B02-093R+", "https://s3-wiki.serenesforest.net/c/cc/B02-093%2B.png" },
+    { "B03-047SR+", "https://s3-wiki.serenesforest.net/9/94/B03-047%2B.png" },
+    { "B04-009R+", "https://s3-wiki.serenesforest.net/c/c2/B04-009%2B.png" },
+    { "P14-009PRX", "https://s3-wiki.serenesforest.net/a/a6/P14-009X.png" },
+    { "P16-009PRX", "https://s3-wiki.serenesforest.net/5/55/P16-009X.png" },
+    { "B01-007ST", "https://s3-wiki.serenesforest.net/6/6b/B01-007ST.png" },
+    { "B01-009ST", "https://s3-wiki.serenesforest.net/1/10/B01-009ST.png" }
+};
 
 ///*
 var cipherVitFiles = Directory.GetFiles(CipherVitFileLocation, "*.fe0db");
@@ -126,10 +126,10 @@ foreach (var vitFile in cipherVitFiles)
         var types = fields[12].Split('/').ToList();
         types.Add(gender.Trim());
         types.Add(weapon.Trim());
-        types = types.Where(item => item != null && item != "-" && item != "None").ToList();
+        types = types.Where(item => item is not null and not "-" and not "None").ToList();
         var attack = fields[13].Trim();
         var support = fields[14].Trim();
-        var range = fields[15] == "-" ? new[] { "0" } : fields[15].Split('-');
+        var range = fields[15] == "-" ? ["0"] : fields[15].Split('-');
         int minRange = int.Parse(range.First().Trim());
         int maxRange = int.Parse(range.Last().Trim());
         var effect = fields[16].Replace("%%", ",").Replace("$$", "\n").Trim();
@@ -171,7 +171,7 @@ foreach (var vitFile in cipherVitFiles)
 
         var matchingCards = feCards.Where(card => card.characterName == character && card.characterTitle == title);
 
-        if (matchingCards.Count() == 0)
+        if (!matchingCards.Any())
         {
             matchingCards = feCards.Where(card => card.characterName == character && card.altArts.Any(art => art.Id.Contains(code)));
         }
@@ -182,7 +182,7 @@ foreach (var vitFile in cipherVitFiles)
             UpdateFECard(card, cost, cccost, cclass, colors, attack, support, minRange, maxRange, effect, supportEffect, types);
             foreach (var rarity in rarities)
             {
-                var artCipherId = rarities.Count() == 2 && rarity.EndsWith("+") ? cipherVitId + "+" : cipherVitId;
+                var artCipherId = rarities.Length == 2 && rarity.EndsWith('+') ? cipherVitId + "+" : cipherVitId;
                 UpdateArts(card, artCipherId, $"{code}{rarity.Trim()}", set, rarity);
             }
         }
@@ -199,7 +199,7 @@ foreach (var vitFile in cipherVitFiles)
             UpdateFECard(correctCard, cost, cccost, cclass, colors, attack, support, minRange, maxRange, effect, supportEffect, types);
             foreach (var rarity in rarities)
             {
-                var artCipherId = rarities.Count() == 2 && rarity.EndsWith("+") ? cipherVitId + "+" : cipherVitId;
+                var artCipherId = rarities.Length == 2 && rarity.EndsWith('+') ? cipherVitId + "+" : cipherVitId;
                 UpdateArts(correctCard, artCipherId, $"{code}{rarity.Trim()}", set, rarity);
             }
         }
@@ -211,7 +211,7 @@ foreach (var vitFile in cipherVitFiles)
             UpdateFECard(correctCard, cost, cccost, cclass, colors, attack, support, minRange, maxRange, effect, supportEffect, types);
             foreach (var rarity in rarities)
             {
-                var artCipherId = rarities.Count() == 2 && rarity.EndsWith("+") ? cipherVitId + "+" : cipherVitId;
+                var artCipherId = rarities.Length == 2 && rarity.EndsWith('+') ? cipherVitId + "+" : cipherVitId;
                 UpdateArts(correctCard, artCipherId, $"{code}{rarity.Trim()}", set, rarity);
             }
         }
@@ -246,7 +246,9 @@ var newFECards = feCards.Select(card =>
         SupportSkill = card.supportSkill,
         AltArts = card.altArts.Select(art =>
         {
+#pragma warning disable SYSLIB1045 // Convert to 'GeneratedRegexAttribute'.
             var regex = new Regex(@"[A-Z][0-9]+\-[0-9]+");
+#pragma warning restore SYSLIB1045 // Convert to 'GeneratedRegexAttribute'.
             var rarity = regex.Replace(art.Id, "");
             return new Decksteria.FECipher.Models.FEAlternateArts
             {
@@ -304,18 +306,20 @@ void UpdateArts(FECard card, string cipherVitId, string CardCode, string SetCode
     }
     else
     {
+#pragma warning disable IDE0045 // Convert to conditional expression
         if (card.altArts.Count == 1)
         {
             matchingArts = card.altArts;
         }
         else if (CardCode.EndsWith("ST"))
         {
-            matchingArts = card.altArts.Where(art => !art.SetCode.StartsWith("P") && !art.Id.Contains("+"));
+            matchingArts = card.altArts.Where(art => !art.SetCode.StartsWith('P') && !art.Id.Contains('+'));
         }
         else
         {
             matchingArts = card.altArts.Where(art => art.SetCode == SetCode);
         }
+#pragma warning restore IDE0045 // Convert to conditional expression
 
         var firstArt = matchingArts.FirstOrDefault();
         if (matchingArts.Count() != 1)
@@ -355,86 +359,30 @@ void UpdateArts(FECard card, string cipherVitId, string CardCode, string SetCode
 
 int Series(string setNo)
 {
-    switch (setNo)
+    return setNo switch
     {
-        case "B01":
-        case "P01":
-        case "S01":
-        case "S02":
-            return 1;
-        case "B02":
-        case "P02":
-        case "S03":
-        case "S04":
-            return 2;
-        case "B03":
-        case "P03":
-        case "S05":
-            return 3;
-        case "B04":
-        case "P04":
-        case "S06":
-            return 4;
-        case "B05":
-        case "P05":
-        case "S07":
-            return 5;
-        case "B06":
-        case "P06":
-        case "S08":
-            return 6;
-        case "B07":
-        case "P07":
-            return 7;
-        case "B08":
-        case "P08":
-            return 8;
-        case "B09":
-        case "P09":
-        case "S09":
-            return 9;
-        case "B10":
-        case "P10":
-            return 10;
-        case "B11":
-        case "P11":
-            return 11;
-        case "B12":
-        case "P12":
-            return 12;
-        case "B13":
-        case "P13":
-        case "S10":
-            return 13;
-        case "B14":
-        case "P14":
-            return 14;
-        case "B15":
-        case "P15":
-            return 15;
-        case "B16":
-        case "P16":
-            return 16;
-        case "B17":
-        case "P17":
-            return 17;
-        case "B18":
-        case "P18":
-        case "S12":
-            return 18;
-        case "B19":
-        case "P19":
-            return 17;
-        case "B20":
-        case "P20":
-            return 20;
-        case "B21":
-        case "P21":
-            return 21;
-        case "B22":
-        case "P22":
-            return 22;
-    }
-
-    return -1;
+        "B01" or "P01" or "S01" or "S02" => 1,
+        "B02" or "P02" or "S03" or "S04" => 2,
+        "B03" or "P03" or "S05" => 3,
+        "B04" or "P04" or "S06" => 4,
+        "B05" or "P05" or "S07" => 5,
+        "B06" or "P06" or "S08" => 6,
+        "B07" or "P07" => 7,
+        "B08" or "P08" => 8,
+        "B09" or "P09" or "S09" => 9,
+        "B10" or "P10" => 10,
+        "B11" or "P11" => 11,
+        "B12" or "P12" => 12,
+        "B13" or "P13" or "S10" => 13,
+        "B14" or "P14" => 14,
+        "B15" or "P15" => 15,
+        "B16" or "P16" => 16,
+        "B17" or "P17" => 17,
+        "B18" or "P18" or "S12" => 18,
+        "B19" or "P19" => 17,
+        "B20" or "P20" => 20,
+        "B21" or "P21" => 21,
+        "B22" or "P22" => 22,
+        _ => -1,
+    };
 }

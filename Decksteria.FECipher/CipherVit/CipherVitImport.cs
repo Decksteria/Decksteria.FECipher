@@ -11,8 +11,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
 
-internal sealed class CipherVitImport : IDecksteriaImport
-
+internal sealed class CipherVitImport(IFECardListService feCardlistService) : IDecksteriaImport
 {
     public string Name => "CipherVit";
 
@@ -20,12 +19,7 @@ internal sealed class CipherVitImport : IDecksteriaImport
 
     public string Label => "From CipherVit";
 
-    public IFECardListService feCardlistService;
-
-    public CipherVitImport(IFECardListService feCardlistService)
-    {
-        this.feCardlistService = feCardlistService;
-    }
+    public IFECardListService feCardlistService = feCardlistService;
 
     public async Task<Decklist> LoadDecklistAsync(MemoryStream memoryStream, IDecksteriaFormat currentFormat, CancellationToken cancellationToken = default)
     {
@@ -33,7 +27,7 @@ internal sealed class CipherVitImport : IDecksteriaImport
         var lackeyDictionary = await GetCipherVitDictionary();
         var mainDeck = new List<CardArt>();
 
-        var line = await reader.ReadLineAsync();
+        var line = await reader.ReadLineAsync(cancellationToken);
         while (line != null)
         {
             var newCard = lackeyDictionary.GetValueOrDefault(line.Trim());
@@ -42,7 +36,7 @@ internal sealed class CipherVitImport : IDecksteriaImport
                 mainDeck.Add(newCard);
             }
 
-            line = await reader.ReadLineAsync();
+            line = await reader.ReadLineAsync(cancellationToken);
         }
 
         var file = new Decklist(FECipher.PlugInName, FormatConstants.Unlimited, new Dictionary<string, IEnumerable<CardArt>>()
@@ -60,7 +54,7 @@ internal sealed class CipherVitImport : IDecksteriaImport
         var arts = cardlist.SelectMany(card => card.AltArts.Select(art => ToCipherVitKeyValue(card, art)));
         return arts.ToDictionary(kv => kv.Key, kv => kv.Value).AsReadOnly();
 
-        KeyValuePair<string, CardArt> ToCipherVitKeyValue(FECard card, FEAlternateArts art)
+        static KeyValuePair<string, CardArt> ToCipherVitKeyValue(FECard card, FEAlternateArts art)
         {
             return new KeyValuePair<string, CardArt>(art.CipherVitId, new CardArt(card.CardId, art.ArtId, art.DownloadUrl, art.FileName, card.Details));
         }

@@ -7,20 +7,15 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
-internal sealed class CipherVitExport : IDecksteriaExport
+internal sealed class CipherVitExport(IFECardListService feCardlistService) : IDecksteriaExport
 {
-    private IFECardListService feCardlistService;
+    private readonly IFECardListService feCardlistService = feCardlistService;
 
     public string Name => "CipherVit";
 
     public string FileType => ".fe0d";
 
     public string Label => "From CipherVit";
-
-    public CipherVitExport(IFECardListService feCardlistService)
-    {
-        this.feCardlistService = feCardlistService;
-    }
 
     public async Task<MemoryStream> SaveDecklistAsync(Decklist decklist, IDecksteriaFormat currentFormat, CancellationToken cancellationToken = default)
     {
@@ -40,7 +35,7 @@ internal sealed class CipherVitExport : IDecksteriaExport
             }
         }
 
-        await streamWriter.FlushAsync();
+        await streamWriter.FlushAsync(cancellationToken);
 
         return memoryStream;
     }
