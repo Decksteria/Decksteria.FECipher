@@ -4,7 +4,6 @@ using Decksteria.Core;
 using Decksteria.Core.Data;
 using Decksteria.FECipher.CipherVit;
 using Decksteria.FECipher.LackeyCCG;
-using Microsoft.Extensions.DependencyInjection;
 using System.Collections.Generic;
 
 public sealed class FECipher : IDecksteriaGame

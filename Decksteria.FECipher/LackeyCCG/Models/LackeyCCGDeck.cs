@@ -13,9 +13,9 @@ internal sealed class LackeyCCGDeck
     public LackeyCCGMeta Metadata { get; set; } = new LackeyCCGMeta();
 
     [XmlElement("superzone")]
-    public List<LackeyCCGSuperZone> Decks { get; set; } = new()
-    {
-        new() { Name = "Deck", Cards = new() },
-        new() { Name = "MC", Cards = new() }
-    };
+    public List<LackeyCCGSuperZone> Decks { get; set; } =
+    [
+        new() { Name = "Deck", Cards = [] },
+        new() { Name = "MC", Cards = [] }
+    ];
 }

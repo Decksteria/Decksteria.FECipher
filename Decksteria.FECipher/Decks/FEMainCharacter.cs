@@ -7,14 +7,9 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-internal class FEMainCharacter : IDecksteriaDeck
+internal class FEMainCharacter(Func<long, Task<FECard>> getCardsFuncAsync) : IDecksteriaDeck
 {
-    private readonly Func<long, Task<FECard>> getCardsFuncAsync;
-
-    public FEMainCharacter(Func<long, Task<FECard>> getCardsFuncAsync)
-    {
-        this.getCardsFuncAsync = getCardsFuncAsync;
-    }
+    private readonly Func<long, Task<FECard>> getCardsFuncAsync = getCardsFuncAsync;
 
     public string Name => DeckConstants.MainCharacterDeck;
 
@@ -22,7 +17,7 @@ internal class FEMainCharacter : IDecksteriaDeck
 
     public async Task<bool> IsCardCanBeAddedAsync(long cardId, IEnumerable<long> cards, CancellationToken cancellationToken = default)
     {
-        if (cards.Count() > 0)
+        if (cards.Any())
         {
             return false;
         }

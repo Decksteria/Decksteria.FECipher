@@ -7,14 +7,9 @@ using System.Collections.ObjectModel;
 using System.Threading;
 using System.Threading.Tasks;
 
-internal class FEUnlimited : FEFormat
+internal class FEUnlimited(IFECardListService cardListService) : FEFormat
 {
-    private readonly IFECardListService cardListService;
-
-    public FEUnlimited(IFECardListService cardListService)
-    {
-        this.cardListService = cardListService;
-    }
+    private readonly IFECardListService cardListService = cardListService;
 
     public override string Name => FormatConstants.Unlimited;
 

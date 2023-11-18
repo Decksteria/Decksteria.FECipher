@@ -12,7 +12,7 @@ using Decksteria.FECipher.Constants;
 using Decksteria.FECipher.LackeyCCG.Models;
 using Decksteria.FECipher.Services;
 
-internal sealed class LackeyCCGExport : IDecksteriaExport
+internal sealed class LackeyCCGExport(IFECardListService feCardlistService) : IDecksteriaExport
 {
     public string Name => "LackeyCCG";
 
@@ -20,12 +20,7 @@ internal sealed class LackeyCCGExport : IDecksteriaExport
 
     public string Label => "To LackeyCCG";
 
-    public IFECardListService feCardlistService;
-
-    public LackeyCCGExport(IFECardListService feCardlistService)
-    {
-        this.feCardlistService = feCardlistService;
-    }
+    public IFECardListService feCardlistService = feCardlistService;
 
     public async Task<MemoryStream> SaveDecklistAsync(Decklist decklist, IDecksteriaFormat currentFormat, CancellationToken cancellationToken = default)
     {
@@ -46,11 +41,11 @@ internal sealed class LackeyCCGExport : IDecksteriaExport
                 Game = "FECipher0"
             },
             Version = "0.8",
-            Decks = new List<LackeyCCGSuperZone>
-            {
+            Decks =
+            [
                 new() { Name = "Deck", Cards = decklist.Decks[DeckConstants.MainDeck].Select(GetLackeyCard).ToList() },
                 new() { Name = "MC", Cards = decklist.Decks[DeckConstants.MainCharacterDeck].Select(GetLackeyCard).ToList() }
-            }
+            ]
         };
 
         LackeyCCGCard GetLackeyCard(CardArt cardArt)

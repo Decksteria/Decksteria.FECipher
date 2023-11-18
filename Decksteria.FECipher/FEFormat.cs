@@ -12,9 +12,9 @@ using System.Threading.Tasks;
 
 internal abstract class FEFormat : IDecksteriaFormat
 {
-    private static readonly string[] Colors = new[] { "All", "Red", "Blue", "Yellow", "Purple", "Green", "Black", "White", "Brown", "Colorless" };
+    private static readonly string[] Colors = ["All", "Red", "Blue", "Yellow", "Purple", "Green", "Black", "White", "Brown", "Colorless"];
 
-    private ReadOnlyDictionary<string, IDecksteriaDeck> feDecks;
+    private readonly ReadOnlyDictionary<string, IDecksteriaDeck> feDecks;
 
     private ReadOnlyDictionary<long, FECard>? formatCards;
 
@@ -59,7 +59,7 @@ internal abstract class FEFormat : IDecksteriaFormat
 
     public async Task<bool> CheckCardCountAsync(long cardId, IReadOnlyDictionary<string, IEnumerable<long>> decklist, CancellationToken cancellationToken = default)
     {
-        formatCards ??= await GetCardDataAsync();
+        formatCards ??= await GetCardDataAsync(cancellationToken);
 
         // Don't add if card can't be found
         var card = formatCards.GetValueOrDefault(cardId);
@@ -145,7 +145,7 @@ internal abstract class FEFormat : IDecksteriaFormat
 
     public async Task<IEnumerable<IDecksteriaCard>> GetCardsAsync(IEnumerable<SearchFieldFilter>? filters = null, CancellationToken cancellationToken = default)
     {
-        formatCards ??= await GetCardDataAsync();
+        formatCards ??= await GetCardDataAsync(cancellationToken);
         cancellationToken.ThrowIfCancellationRequested();
         var cardlist = formatCards.Select(kv => kv.Value);
 
@@ -178,7 +178,7 @@ internal abstract class FEFormat : IDecksteriaFormat
 
     public async Task<Dictionary<string, int>> GetDeckStatsAsync(IReadOnlyDictionary<string, IEnumerable<long>> decklist, bool isDetailed, CancellationToken cancellationToken = default)
     {
-        formatCards ??= await GetCardDataAsync();
+        formatCards ??= await GetCardDataAsync(cancellationToken);
 
         // Get Main Character Card
         long? mainCharId = decklist.GetValueOrDefault(DeckConstants.MainCharacterDeck)?.FirstOrDefault();
@@ -275,8 +275,8 @@ internal abstract class FEFormat : IDecksteriaFormat
 
     public async Task<bool> IsDecklistLegal(IReadOnlyDictionary<string, IEnumerable<long>> decklist, CancellationToken cancellationToken = default)
     {
-        var mainCharacterDeckLegal = await feDecks[DeckConstants.MainCharacterDeck].IsDeckValidAsync(decklist[DeckConstants.MainCharacterDeck]);
-        return mainCharacterDeckLegal && decklist[DeckConstants.MainDeck].Count() >= 1;
+        var mainCharacterDeckLegal = await feDecks[DeckConstants.MainCharacterDeck].IsDeckValidAsync(decklist[DeckConstants.MainCharacterDeck], cancellationToken);
+        return mainCharacterDeckLegal && decklist[DeckConstants.MainDeck].Any();
     }
 
     public virtual void Uninitialize()

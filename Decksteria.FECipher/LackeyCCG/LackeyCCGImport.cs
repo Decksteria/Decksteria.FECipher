@@ -11,7 +11,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
 
-internal sealed class LackeyCCGImport : IDecksteriaImport
+internal sealed class LackeyCCGImport(IFECardListService feCardlistService) : IDecksteriaImport
 
 {
     public string Name => "LackeyCCG";
@@ -20,17 +20,12 @@ internal sealed class LackeyCCGImport : IDecksteriaImport
 
     public string Label => "From LackeyCCG";
 
-    public IFECardListService feCardlistService;
-
-    public LackeyCCGImport(IFECardListService feCardlistService)
-    {
-        this.feCardlistService = feCardlistService;
-    }
+    public IFECardListService feCardlistService = feCardlistService;
 
     public async Task<Decklist> LoadDecklistAsync(MemoryStream memoryStream, IDecksteriaFormat currentFormat, CancellationToken cancellationToken = default)
     {
         var reader = new StreamReader(memoryStream);
-        var textFile = await reader.ReadToEndAsync();
+        var textFile = await reader.ReadToEndAsync(cancellationToken);
 
         // Change Format
         var currentFormatName = currentFormat.Name;
@@ -63,7 +58,7 @@ internal sealed class LackeyCCGImport : IDecksteriaImport
         var arts = cardlist.SelectMany(card => card.AltArts.Select(art => ToLackeyCCGKeyValue(card, art)));
         return arts.ToDictionary(kv => kv.Key, kv => kv.Value).AsReadOnly();
 
-        KeyValuePair<string, CardArt> ToLackeyCCGKeyValue(FECard card, FEAlternateArts art)
+        static KeyValuePair<string, CardArt> ToLackeyCCGKeyValue(FECard card, FEAlternateArts art)
         {
             return new KeyValuePair<string, CardArt>(art.LackeyCCGId, new CardArt(card.CardId, art.ArtId, art.DownloadUrl, art.FileName, card.Details));
         }

@@ -7,14 +7,9 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 
-internal sealed class FEStandard : FEFormat
+internal sealed class FEStandard(IFECardListService cardListService) : FEFormat
 {
-    private readonly IFECardListService cardListService;
-
-    public FEStandard(IFECardListService cardListService)
-    {
-        this.cardListService = cardListService;
-    }
+    private readonly IFECardListService cardListService = cardListService;
 
     public override string Name => FormatConstants.Standard;
 

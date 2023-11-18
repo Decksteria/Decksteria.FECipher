@@ -61,7 +61,7 @@ foreach (var jsonCard in jsonEnumerator)
             throw new ArgumentException("JSON Field AlternateArts is missing a Non-Nullable Property.");
         }
 
-        var alt = new FEAlternateArts(code, setNo, image, lackeyID, lackeyName, cipherVitID, imageURL.Trim());
+        var alt = new FEAlternateArts(code, setNo, image, lackeyID, lackeyName, imageURL.Trim());
         altArts.Add(alt);
     }
 
@@ -260,7 +260,7 @@ var newFECards = feCards.Select(card =>
                 DownloadUrl = art.ImageDownloadURL,
                 LackeyCCGId = art.LackeyCCGId,
                 LackeyCCGName = art.LackeyCCGName,
-                CipherVitId = art.CipherVitId,
+                //CipherVitId = art.CipherVitId,
                 SeriesNo = Series(art.SetCode)
             };
         })
@@ -299,7 +299,7 @@ void UpdateArts(FECard card, string cipherVitId, string CardCode, string SetCode
     if (matchingArts.Any())
     {
         var art = matchingArts.First();
-        art.CipherVitId = cipherVitId;
+        //art.CipherVitId = cipherVitId;
         art.SetCode = SetCode;
         var fileName = Path.GetFileName(art.ImageDownloadURL);
         art.ImageLocation = $@"\plug-ins\fe-cipher\images\{art.SetCode}\{fileName}";
@@ -352,8 +352,8 @@ void UpdateArts(FECard card, string cipherVitId, string CardCode, string SetCode
             fileExtension = downloadLocation[fileExtStart..];
             imageLocation = $@"\plug-ins\fe-cipher\images\{firstArt.SetCode}\{CardCode}{fileExtension}";
         }
-        
-        card.altArts.Add(new FEAlternateArts(CardCode, SetCode, imageLocation, firstArt.LackeyCCGId, firstArt.LackeyCCGName, cipherVitId, downloadLocation ?? ""));
+
+        card.altArts.Add(new FEAlternateArts(CardCode, SetCode, imageLocation, firstArt.LackeyCCGId, firstArt.LackeyCCGName, downloadLocation ?? ""));
     }
 }
 

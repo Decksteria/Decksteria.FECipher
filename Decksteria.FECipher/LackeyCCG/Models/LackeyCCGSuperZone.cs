@@ -9,5 +9,5 @@ internal sealed class LackeyCCGSuperZone
 
     // This is the collection of elements that represents the cards in the superzone
     [XmlElement("card")]
-    public List<LackeyCCGCard> Cards { get; set; } = new();
+    public List<LackeyCCGCard> Cards { get; set; } = [];
 }
