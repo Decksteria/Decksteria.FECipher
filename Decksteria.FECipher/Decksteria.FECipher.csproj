@@ -1,9 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
     <NeutralLanguage>en</NeutralLanguage>
   </PropertyGroup>
 
@@ -12,7 +9,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Decksteria\Decksteria.Core\Decksteria.Core.csproj" />
+    <ProjectReference Include="..\..\..\Decksteria.Core\Decksteria.Core.csproj" />
   </ItemGroup>
 
   <ItemGroup>
