@@ -1,6 +1,7 @@
 ﻿namespace Decksteria.FECipher.Models;
 
 using Decksteria.Core;
+using System;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
@@ -18,7 +19,7 @@ public sealed class FECard : IDecksteriaCard
     {
         get
         {
-            string fullDetails = Name;
+            var fullDetails = Name;
             fullDetails += string.Format("\nClass: {0}/Cost: {1}", CardClass, Cost);
             if (ClassChangeCost != null)
             {
@@ -96,8 +97,5 @@ public sealed class FECard : IDecksteriaCard
     public IEnumerable<FEAlternateArts> AltArts { get; init; } = Array.Empty<FEAlternateArts>();
 
     [JsonIgnore]
-    public string Name
-    {
-        get { return CharacterName + ": " + CardTitle; }
-    }
+    public string Name => CharacterName + ": " + CardTitle;
 }

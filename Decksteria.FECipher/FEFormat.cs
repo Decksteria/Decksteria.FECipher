@@ -5,8 +5,10 @@ using Decksteria.Core.Models;
 using Decksteria.FECipher.Constants;
 using Decksteria.FECipher.Decks;
 using Decksteria.FECipher.Models;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -79,6 +81,7 @@ internal abstract class FEFormat : IDecksteriaFormat
         return decklist.SelectMany(deck => deck.Value).Count(cId => formatCards.GetValueOrDefault(cId)?.Name == card.Name) < 4;
     }
 
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0046:Convert to conditional expression", Justification = "Code is not more readable when converted to a conditional expression.")]
     public async Task<int> CompareCardsAsync(long cardId1, long cardId2, CancellationToken cancellationToken = default)
     {
         if (cardId1 == cardId2)
@@ -181,19 +184,19 @@ internal abstract class FEFormat : IDecksteriaFormat
         formatCards ??= await GetCardDataAsync(cancellationToken);
 
         // Get Main Character Card
-        long? mainCharId = decklist.GetValueOrDefault(DeckConstants.MainCharacterDeck)?.FirstOrDefault();
-        FECard? mainCharacter = mainCharId.HasValue ? formatCards.GetValueOrDefault(mainCharId.Value) : null;
+        var mainCharId = decklist.GetValueOrDefault(DeckConstants.MainCharacterDeck)?.FirstOrDefault();
+        var mainCharacter = mainCharId.HasValue ? formatCards.GetValueOrDefault(mainCharId.Value) : null;
 
         // Get Counts
-        int mainCharacterNames = 0;
-        int range0 = 0;
-        int range1 = 0;
-        int range2 = 0;
-        int range3 = 0;
-        int support0 = 0;
-        int support10 = 0;
-        int support20 = 0;
-        int support30 = 0;
+        var mainCharacterNames = 0;
+        var range0 = 0;
+        var range1 = 0;
+        var range2 = 0;
+        var range3 = 0;
+        var support0 = 0;
+        var support10 = 0;
+        var support20 = 0;
+        var support30 = 0;
 
         var allCards = decklist.SelectMany(kv => kv.Value.Select(id => formatCards.GetValueOrDefault(id)));
 

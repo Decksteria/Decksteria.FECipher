@@ -3,7 +3,9 @@
 using Decksteria.Core;
 using Decksteria.FECipher.Constants;
 using Decksteria.FECipher.Models;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -34,11 +36,6 @@ internal class FEMainCharacter(Func<long, Task<FECard>> getCardsFuncAsync) : IDe
         }
 
         var feCard = await getCardsFuncAsync(cards.First());
-        if (feCard != null && feCard.Cost != "1")
-        {
-            return false;
-        }
-
-        return true;
+        return feCard == null || feCard.Cost == "1";
     }
 }
