@@ -12,6 +12,7 @@ using Decksteria.Core.Models;
 using Decksteria.FECipher.Constants;
 using Decksteria.FECipher.LackeyCCG.Models;
 using Decksteria.FECipher.Services;
+using Decksteria.Service.DecksteriaFile.Models;
 
 internal sealed class LackeyCCGExport(IFECardListService feCardlistService) : IDecksteriaExport
 {
@@ -49,7 +50,7 @@ internal sealed class LackeyCCGExport(IFECardListService feCardlistService) : ID
             ]
         };
 
-        LackeyCCGCard GetLackeyCard(CardArt cardArt)
+        LackeyCCGCard GetLackeyCard(CardArtId cardArt)
         {
             var art = cardlist.First(card => card.CardId == cardArt.CardId).AltArts.First(art => art.ArtId == cardArt.ArtId);
             return new LackeyCCGCard
