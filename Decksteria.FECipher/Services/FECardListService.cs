@@ -17,7 +17,7 @@ internal sealed class FECardListService : IFECardListService
 
         async Task<IEnumerable<FECard>> GetCardList()
         {
-            var jsonText = await fileReader.ReadTextFileAsync("cardlist.json", "");
+            var jsonText = await fileReader.ReadTextFileAsync("cardlist.json", FECipher.PlugInName, "https://raw.githubusercontent.com/Decksteria/Decksteria.FECipher/main/Decksteria.FECipher/cardlist.json");
             var cardlist = JsonSerializer.Deserialize<IEnumerable<FECard>>(jsonText) ?? Array.Empty<FECard>();
             return cardlist ?? Array.Empty<FECard>();
         }

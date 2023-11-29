@@ -5,7 +5,6 @@ using Decksteria.Core.Models;
 using Decksteria.FECipher.Constants;
 using Decksteria.FECipher.Models;
 using Decksteria.FECipher.Services;
-using Decksteria.Service.DecksteriaFile.Models;
 using System;
 using System.Collections.Generic;
 using System.IO;

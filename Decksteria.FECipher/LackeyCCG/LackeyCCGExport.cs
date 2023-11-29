@@ -12,7 +12,6 @@ using Decksteria.Core.Models;
 using Decksteria.FECipher.Constants;
 using Decksteria.FECipher.LackeyCCG.Models;
 using Decksteria.FECipher.Services;
-using Decksteria.Service.DecksteriaFile.Models;
 
 internal sealed class LackeyCCGExport(IFECardListService feCardlistService) : IDecksteriaExport
 {
