@@ -154,13 +154,13 @@ internal abstract class FEFormat : IDecksteriaFormat
 
         if (filters == null)
         {
-            return cardlist;
+            return cardlist.AsQueryable();
         }
 
         var filterFuncs = filters.Select(GetFilterFunction);
 
         // Get all cards that match the conditions of all filter functions
-        return cardlist.Where(card => filterFuncs.All(func => func(card)));
+        return cardlist.Where(card => filterFuncs.All(func => func(card))).AsQueryable();
 
         Func<FECard, bool> GetFilterFunction(SearchFieldFilter filter) => filter.SearchField.FieldName switch
         {

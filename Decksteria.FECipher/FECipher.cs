@@ -10,11 +10,9 @@ using System.Threading.Tasks;
 
 public sealed class FECipher : IDecksteriaGame
 {
-    public const string PlugInName = "FECipher";
+    public const string PlugInName = nameof(FECipher);
 
     private readonly IDecksteriaFileReader fileReader;
-
-    public string Name => PlugInName;
 
     public string DisplayName => "Fire Emblem Cipher 0";
 
