@@ -146,11 +146,11 @@ internal abstract class FEFormat : IDecksteriaFormat
         return await GetFECardAsync(cardId);
     }
 
-    public async Task<IEnumerable<IDecksteriaCard>> GetCardsAsync(IEnumerable<SearchFieldFilter>? filters = null, CancellationToken cancellationToken = default)
+    public async Task<IQueryable<IDecksteriaCard>> GetCardsAsync(IEnumerable<SearchFieldFilter>? filters = null, CancellationToken cancellationToken = default)
     {
         formatCards ??= await GetCardDataAsync(cancellationToken);
         cancellationToken.ThrowIfCancellationRequested();
-        var cardlist = formatCards.Select(kv => kv.Value);
+        var cardlist = formatCards.Select(kv => kv.Value).AsQueryable();
 
         if (filters == null)
         {

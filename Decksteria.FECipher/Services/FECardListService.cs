@@ -9,22 +9,25 @@ using System.Threading.Tasks;
 
 internal sealed class FECardListService : IFECardListService
 {
-    private readonly Lazy<Task<IEnumerable<FECard>>> cardList;
+    private readonly IDecksteriaFileReader fileReader;
+
+    private IEnumerable<FECard>? cardList;
 
     public FECardListService(IDecksteriaFileReader fileReader)
     {
-        cardList = new(GetCardList);
-
-        async Task<IEnumerable<FECard>> GetCardList()
-        {
-            var jsonText = await fileReader.ReadTextFileAsync("cardlist.json", FECipher.PlugInName, "https://raw.githubusercontent.com/Decksteria/Decksteria.FECipher/main/Decksteria.FECipher/cardlist.json");
-            var cardlist = JsonSerializer.Deserialize<IEnumerable<FECard>>(jsonText) ?? Array.Empty<FECard>();
-            return cardlist ?? Array.Empty<FECard>();
-        }
+        this.fileReader = fileReader;
     }
 
-    public Task<IEnumerable<FECard>> GetCardList()
+    public async Task<IEnumerable<FECard>> GetCardList()
     {
-        return cardList.Value;
+        if (cardList is null)
+        {
+            var cardListMD5 = await fileReader.ReadTextFileAsync(null, "https://raw.githubusercontent.com/Decksteria/Decksteria.FECipher/main/Decksteria.FECipher/cardlist.json.md5");
+            var jsonText = await fileReader.ReadTextFileAsync("cardlist.json", "https://raw.githubusercontent.com/Decksteria/Decksteria.FECipher/main/Decksteria.FECipher/cardlist.json", cardListMD5);
+            var cardlist = JsonSerializer.Deserialize<IEnumerable<FECard>>(jsonText) ?? Array.Empty<FECard>();
+            cardList = cardlist ?? Array.Empty<FECard>();
+        }
+
+        return cardList;
     }
 }

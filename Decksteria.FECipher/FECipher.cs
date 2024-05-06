@@ -5,10 +5,14 @@ using Decksteria.Core.Data;
 using Decksteria.FECipher.CipherVit;
 using Decksteria.FECipher.LackeyCCG;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 
 public sealed class FECipher : IDecksteriaGame
 {
     public const string PlugInName = "FECipher";
+
+    private readonly IDecksteriaFileReader fileReader;
 
     public string Name => PlugInName;
 
@@ -38,6 +42,7 @@ public sealed class FECipher : IDecksteriaGame
             new LackeyCCGExport(cardlistService),
             new CipherVitExport(cardlistService)
         };
+        this.fileReader = fileReader;
     }
 
     public IEnumerable<IDecksteriaFormat> Formats { get; }
