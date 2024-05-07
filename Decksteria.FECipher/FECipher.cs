@@ -4,13 +4,17 @@ using Decksteria.Core;
 using Decksteria.Core.Data;
 using Decksteria.FECipher.CipherVit;
 using Decksteria.FECipher.LackeyCCG;
+using Decksteria.FECipher.Services;
+using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 
 public sealed class FECipher : IDecksteriaGame
 {
-    public const string PlugInName = "FECipher";
+    public const string PlugInName = nameof(FECipher);
 
-    public string Name => PlugInName;
+    private readonly IDecksteriaFileReader fileReader;
 
     public string DisplayName => "Fire Emblem Cipher 0";
 
@@ -18,9 +22,9 @@ public sealed class FECipher : IDecksteriaGame
 
     public string Description => "Fire Emblem Cipher 0";
 
-    public FECipher(IDecksteriaFileReader fileReader)
+    public FECipher(IDecksteriaFileReader fileReader, ILoggerFactory loggerFactory)
     {
-        var cardlistService = new Services.FECardListService(fileReader);
+        var cardlistService = new FECardListService(fileReader, loggerFactory.CreateLogger<FECardListService>());
 
         Formats = new IDecksteriaFormat[]
         {
@@ -38,6 +42,7 @@ public sealed class FECipher : IDecksteriaGame
             new LackeyCCGExport(cardlistService),
             new CipherVitExport(cardlistService)
         };
+        this.fileReader = fileReader;
     }
 
     public IEnumerable<IDecksteriaFormat> Formats { get; }
