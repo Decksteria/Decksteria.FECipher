@@ -22,7 +22,7 @@ internal sealed class FECardListService : IFECardListService
     {
         if (cardList is null)
         {
-            var cardListMD5 = await fileReader.ReadTextFileAsync(null, "https://github.com/Decksteria/Decksteria.FECipher/blob/users/ere/fix-file-corruption/Decksteria.FECipher/cardlist.json.md5");
+            var cardListMD5 = await fileReader.ReadTextFileAsync(null, "https://raw.githubusercontent.com/Decksteria/Decksteria.FECipher/users/ere/fix-file-corruption/Decksteria.FECipher/cardlist.json.md5");
             var jsonText = await fileReader.ReadTextFileAsync("cardlist.json", "https://raw.githubusercontent.com/Decksteria/Decksteria.FECipher/main/Decksteria.FECipher/cardlist.json", cardListMD5);
             var cardlist = JsonSerializer.Deserialize<IEnumerable<FECard>>(jsonText) ?? Array.Empty<FECard>();
             cardList = cardlist ?? Array.Empty<FECard>();
