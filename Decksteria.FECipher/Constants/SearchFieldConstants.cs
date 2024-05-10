@@ -1,7 +1,4 @@
 ﻿namespace Decksteria.FECipher.Constants;
-
-using System.Security.Claims;
-
 internal static class SearchFieldConstants
 {
     public const string CharacterField = "Character";

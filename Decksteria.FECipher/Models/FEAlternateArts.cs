@@ -1,7 +1,7 @@
 ﻿namespace Decksteria.FECipher.Models;
 
-using Decksteria.Core;
 using System.Text.Json.Serialization;
+using Decksteria.Core;
 
 public sealed class FEAlternateArts : IDecksteriaCardArt
 {

@@ -1,13 +1,13 @@
 ﻿namespace Decksteria.FECipher.Decks;
 
-using Decksteria.Core;
-using Decksteria.FECipher.Constants;
-using Decksteria.FECipher.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Decksteria.Core;
+using Decksteria.FECipher.Constants;
+using Decksteria.FECipher.Models;
 
 internal class FEMainCharacter(Func<long, Task<FECard>> getCardsFuncAsync) : IDecksteriaDeck
 {

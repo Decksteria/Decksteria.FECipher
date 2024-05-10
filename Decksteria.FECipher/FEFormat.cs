@@ -1,16 +1,16 @@
 ﻿namespace Decksteria.FECipher;
 
-using Decksteria.Core;
-using Decksteria.Core.Models;
-using Decksteria.FECipher.Constants;
-using Decksteria.FECipher.Decks;
-using Decksteria.FECipher.Models;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Decksteria.Core;
+using Decksteria.Core.Models;
+using Decksteria.FECipher.Constants;
+using Decksteria.FECipher.Decks;
+using Decksteria.FECipher.Models;
 
 internal abstract class FEFormat : IDecksteriaFormat
 {

@@ -1,9 +1,9 @@
 ﻿namespace Decksteria.FECipher.Models;
 
-using Decksteria.Core;
 using System;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
+using Decksteria.Core;
 
 public sealed class FECard : IDecksteriaCard
 {

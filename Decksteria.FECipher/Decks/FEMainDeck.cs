@@ -1,11 +1,11 @@
 ﻿namespace Decksteria.FECipher.Decks;
 
-using Decksteria.Core;
-using Decksteria.FECipher.Constants;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Decksteria.Core;
+using Decksteria.FECipher.Constants;
 
 internal class FEMainDeck : IDecksteriaDeck
 {

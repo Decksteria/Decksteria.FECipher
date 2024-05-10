@@ -1,9 +1,9 @@
 ﻿namespace Decksteria.FECipher.Services;
 
-using Decksteria.FECipher.Models;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Decksteria.FECipher.Models;
 
 internal interface IFECardListService
 {

@@ -1,14 +1,12 @@
 ﻿namespace Decksteria.FECipher;
 
+using System.Collections.Generic;
 using Decksteria.Core;
 using Decksteria.Core.Data;
 using Decksteria.FECipher.CipherVit;
 using Decksteria.FECipher.LackeyCCG;
 using Decksteria.FECipher.Services;
 using Microsoft.Extensions.Logging;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 
 public sealed class FECipher : IDecksteriaGame
 {

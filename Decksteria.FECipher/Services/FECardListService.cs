@@ -1,13 +1,13 @@
 ﻿namespace Decksteria.FECipher.Services;
 
-using Decksteria.Core.Data;
-using Decksteria.FECipher.Models;
-using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using Decksteria.Core.Data;
+using Decksteria.FECipher.Models;
+using Microsoft.Extensions.Logging;
 
 internal sealed class FECardListService : IFECardListService
 {
