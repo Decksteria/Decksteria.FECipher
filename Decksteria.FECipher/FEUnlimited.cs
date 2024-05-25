@@ -28,7 +28,7 @@ internal class FEUnlimited : FEFormat
 
     protected override async Task<ReadOnlyDictionary<long, FECard>> GetCardDataAsync(CancellationToken cancellationToken = default!)
     {
-        var cardlist = await cardListService.GetCardList();
+        var cardlist = await cardListService.GetCardList(cancellationToken);
         return cardlist?.ToDictionary(card => card.CardId).AsReadOnly() ?? new(new Dictionary<long, FECard>());
     }
 }

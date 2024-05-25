@@ -29,6 +29,7 @@ internal sealed class FECardListService : IFECardListService
 
     public async Task<IEnumerable<FECard>> GetCardList(CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         if (cardlist is null)
         {
             // Failing to get the MD5 Checksum should not result in failing to read the cardlist json file.
