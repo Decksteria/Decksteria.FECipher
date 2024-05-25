@@ -81,7 +81,6 @@ internal abstract class FEFormat : IDecksteriaFormat
         return decklist.SelectMany(deck => deck.Value).Count(cId => formatCards.GetValueOrDefault(cId)?.Name == card.Name) < 4;
     }
 
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0046:Convert to conditional expression", Justification = "Code is not more readable when converted to a conditional expression.")]
     public async Task<int> CompareCardsAsync(long cardId1, long cardId2, CancellationToken cancellationToken = default)
     {
         if (cardId1 == cardId2)
@@ -313,7 +312,6 @@ internal abstract class FEFormat : IDecksteriaFormat
         return formatCards[cardId];
     }
 
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0066:Convert switch statement to expression", Justification = "Range matching only uses listed Comparison Types.")]
     private static bool RangeMatchesFilter(FECard card, SearchFieldFilter filter)
     {
         if (filter.Value == null)
@@ -323,22 +321,15 @@ internal abstract class FEFormat : IDecksteriaFormat
 
         var value = Convert.ToInt32(filter.Value);
 
-        switch (filter.Comparison)
+        return filter.Comparison switch
         {
-            case ComparisonType.Equals:
-                return value >= card.MinRange && value <= card.MaxRange;
-            case ComparisonType.NotEquals:
-                return value <= card.MinRange || value >= card.MaxRange;
-            case ComparisonType.GreaterThan:
-                return value < card.MaxRange;
-            case ComparisonType.GreaterThanOrEqual:
-                return value <= card.MaxRange;
-            case ComparisonType.LessThan:
-                return value > card.MinRange;
-            case ComparisonType.LessThanOrEqual:
-                return value >= card.MinRange;
-        }
-
-        return false;
+            ComparisonType.Equals => value >= card.MinRange && value <= card.MaxRange,
+            ComparisonType.NotEquals => value <= card.MinRange || value >= card.MaxRange,
+            ComparisonType.GreaterThan => value < card.MaxRange,
+            ComparisonType.GreaterThanOrEqual => value <= card.MaxRange,
+            ComparisonType.LessThan => value > card.MinRange,
+            ComparisonType.LessThanOrEqual => value >= card.MinRange,
+            _ => false,
+        };
     }
 }

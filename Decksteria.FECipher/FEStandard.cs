@@ -9,9 +9,14 @@ using Decksteria.FECipher.Constants;
 using Decksteria.FECipher.Models;
 using Decksteria.FECipher.Services;
 
-internal sealed class FEStandard(IFECardListService cardListService) : FEFormat
+internal sealed class FEStandard : FEFormat
 {
-    private readonly IFECardListService cardListService = cardListService;
+    private readonly IFECardListService cardListService;
+
+    public FEStandard(IFECardListService cardListService)
+    {
+        this.cardListService = cardListService;
+    }
 
     public override string Name => FormatConstants.Standard;
 
