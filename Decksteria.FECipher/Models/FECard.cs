@@ -26,7 +26,7 @@ public sealed class FECard : IDecksteriaCard
                 fullDetails += "(" + ClassChangeCost + ")";
             }
 
-            fullDetails += string.Format("\nColors: {0}\nTypes: {1}\nAttack: {2}/Support: {3}/Range: {4}-{5}", string.Join('/', Colors), string.Join('/', Types), Attack, Support, MinRange, MaxRange);
+            fullDetails += string.Format("\nColors: {0}\nTypes: {1}\nAttack: {2}/Support: {3}/Range: {4}-{5}", string.Join('/', Colours), string.Join('/', Types), Attack, Support, MinRange, MaxRange);
             fullDetails += "\n---\nSkills:\n" + Skill;
 
             if (SupportSkill != null)
@@ -48,7 +48,7 @@ public sealed class FECard : IDecksteriaCard
 
     [JsonPropertyName("Color")]
     [JsonPropertyOrder(3)]
-    public IEnumerable<string> Colors { get; init; } = Array.Empty<string>();
+    public Colour Colours { get; init; }
 
     [JsonPropertyName("Cost")]
     [JsonPropertyOrder(4)]

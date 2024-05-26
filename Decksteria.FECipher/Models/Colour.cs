@@ -1,7 +1,11 @@
 ﻿namespace Decksteria.FECipher.Models;
 
-internal enum Color : uint
+using System;
+
+[Flags]
+public enum Colour : uint
 {
+    Colourless = 0,
     Red = 1,
     Blue = 2,
     Yellow = 4,

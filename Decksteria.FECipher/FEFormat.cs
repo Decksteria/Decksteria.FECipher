@@ -18,6 +18,8 @@ internal abstract partial class FEFormat : IDecksteriaFormat
 
     private readonly ReadOnlyDictionary<string, IDecksteriaDeck> feDecks;
 
+    private readonly uint colourlessValue;
+
     private ReadOnlyDictionary<long, FECard>? formatCards;
 
     public FEFormat()
@@ -28,18 +30,18 @@ internal abstract partial class FEFormat : IDecksteriaFormat
             { DeckConstants.MainDeck, new FEMainDeck()}
         }.AsReadOnly();
 
-        var colorlessValue = ((uint) Enum.GetValues<Color>().Max()) * 2;
+        colourlessValue = ((uint) Enum.GetValues<Colour>().Max()) * 2;
         Colors = new Dictionary<string, uint>()
         {
-            {nameof(Color.Red), (uint) Color.Red},
-            {nameof(Color.Blue), (uint) Color.Blue},
-            {nameof(Color.Yellow), (uint) Color.Yellow},
-            {nameof(Color.Purple), (uint) Color.Purple},
-            {nameof(Color.Green), (uint) Color.Green},
-            {nameof(Color.Black), (uint) Color.Black},
-            {nameof(Color.White), (uint) Color.White},
-            {nameof(Color.Brown), (uint) Color.Brown},
-            {"Colorless", colorlessValue }
+            {nameof(Colour.Red), (uint) Colour.Red},
+            {nameof(Colour.Blue), (uint) Colour.Blue},
+            {nameof(Colour.Yellow), (uint) Colour.Yellow},
+            {nameof(Colour.Purple), (uint) Colour.Purple},
+            {nameof(Colour.Green), (uint) Colour.Green},
+            {nameof(Colour.Black), (uint) Colour.Black},
+            {nameof(Colour.White), (uint) Colour.White},
+            {nameof(Colour.Brown), (uint) Colour.Brown},
+            {nameof(Colour.Colourless), colourlessValue }
         }.AsReadOnly();
 
         SearchFields = new SearchField[]
@@ -180,7 +182,7 @@ internal abstract partial class FEFormat : IDecksteriaFormat
         {
             SearchFieldConstants.CharacterField => (card) => filter.MatchesFilter(card.CharacterName),
             SearchFieldConstants.TitleField => (card) => filter.MatchesFilter(card.CardTitle),
-            SearchFieldConstants.ColorField => (card) => card.Colors.Any(filter.MatchesFilter),
+            SearchFieldConstants.ColorField => (card) => ColoursMatchOverride(card.Colours, filter),
             SearchFieldConstants.CostField => (card) => filter.MatchesFilter(card.Cost),
             SearchFieldConstants.ClassChangeCostField => (card) => filter.MatchesFilter(card.ClassChangeCost),
             SearchFieldConstants.ClassField => (card) => filter.MatchesFilter(card.CharacterName),
@@ -191,6 +193,27 @@ internal abstract partial class FEFormat : IDecksteriaFormat
             SearchFieldConstants.SeriesField => (card) => card.AltArts.Select(art => art.SeriesNo).Any(filter.MatchesFilter),
             _ => throw new ArgumentException("Invalid Search Field.", filter.SearchField.FieldName)
         };
+
+        bool ColoursMatchOverride(Colour cardColor, ISearchFieldFilter filter)
+        {
+            var colourValue = (uint) cardColor;
+            if (cardColor != Colour.Colourless)
+            {
+                return filter.MatchesFilter(colourValue);
+            }
+
+            if (filter.Value is not uint uintValue || (uintValue & colourlessValue) == 0)
+            {
+                return false;
+            }
+
+            return filter.Comparison switch
+            {
+                ComparisonType.Equals or ComparisonType.Contains or ComparisonType.GreaterThanOrEqual => true,
+                ComparisonType.NotEquals or ComparisonType.NotContains or ComparisonType.LessThan => false,
+                _ => false
+            };
+        }
     }
 
     public async Task<Dictionary<string, int>> GetDeckStatsAsync(IReadOnlyDictionary<string, IEnumerable<long>> decklist, bool isDetailed, CancellationToken cancellationToken = default)
