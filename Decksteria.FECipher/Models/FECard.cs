@@ -26,7 +26,7 @@ public sealed class FECard : IDecksteriaCard
                 fullDetails += "(" + ClassChangeCost + ")";
             }
 
-            fullDetails += string.Format("\nColors: {0}\nTypes: {1}\nAttack: {2}/Support: {3}/Range: {4}-{5}", string.Join('/', Colours), string.Join('/', Types), Attack, Support, MinRange, MaxRange);
+            fullDetails += string.Format("\nColors: {0}\nTypes: {1}\nAttack: {2}/Support: {3}/Range: {4}-{5}", string.Join('/', ColoursValue), string.Join('/', Types), Attack, Support, MinRange, MaxRange);
             fullDetails += "\n---\nSkills:\n" + Skill;
 
             if (SupportSkill != null)
@@ -38,6 +38,9 @@ public sealed class FECard : IDecksteriaCard
         }
     }
 
+    [JsonIgnore]
+    public Colour ColoursValue { get; internal set; } = Colour.Colourless;
+
     [JsonPropertyName("Character")]
     [JsonPropertyOrder(1)]
     public string CharacterName { get; init; } = string.Empty;
@@ -48,7 +51,7 @@ public sealed class FECard : IDecksteriaCard
 
     [JsonPropertyName("Color")]
     [JsonPropertyOrder(3)]
-    public Colour Colours { get; init; }
+    public IEnumerable<string> Colors { get; init; } = Array.Empty<string>();
 
     [JsonPropertyName("Cost")]
     [JsonPropertyOrder(4)]
@@ -97,5 +100,18 @@ public sealed class FECard : IDecksteriaCard
     public IEnumerable<FEAlternateArts> AltArts { get; init; } = Array.Empty<FEAlternateArts>();
 
     [JsonIgnore]
-    public string Name => CharacterName + ": " + CardTitle;
+    public string Name => $"{CharacterName} : {CardTitle}";
+
+    internal void AfterJsonInitialize()
+    {
+        foreach (var colour in Colors)
+        {
+            if (!Enum.TryParse<Colour>(colour, out var colourValue))
+            {
+                continue;
+            }
+
+            ColoursValue |= colourValue;
+        }
+    }
 }

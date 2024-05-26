@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -45,6 +46,12 @@ internal sealed class FECardListService : IFECardListService
 
             var jsonText = await fileReader.ReadTextFileAsync("cardlist.json", cardlistURL, cardListMD5, cancellationToken);
             var cardlist = JsonSerializer.Deserialize<IEnumerable<FECard>>(jsonText) ?? Array.Empty<FECard>();
+            
+            foreach (var card in cardlist)
+            {
+                card.AfterJsonInitialize();
+            }
+
             this.cardlist = cardlist ?? Array.Empty<FECard>();
         }
 

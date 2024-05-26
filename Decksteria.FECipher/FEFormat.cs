@@ -182,7 +182,7 @@ internal abstract partial class FEFormat : IDecksteriaFormat
         {
             SearchFieldConstants.CharacterField => (card) => filter.MatchesFilter(card.CharacterName),
             SearchFieldConstants.TitleField => (card) => filter.MatchesFilter(card.CardTitle),
-            SearchFieldConstants.ColorField => (card) => ColoursMatchOverride(card.Colours, filter),
+            SearchFieldConstants.ColorField => (card) => ColoursMatchOverride(card.ColoursValue, filter),
             SearchFieldConstants.CostField => (card) => filter.MatchesFilter(card.Cost),
             SearchFieldConstants.ClassChangeCostField => (card) => filter.MatchesFilter(card.ClassChangeCost),
             SearchFieldConstants.ClassField => (card) => filter.MatchesFilter(card.CharacterName),
