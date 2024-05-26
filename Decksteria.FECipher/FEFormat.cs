@@ -43,11 +43,10 @@ internal abstract class FEFormat : IDecksteriaFormat
 
     public IEnumerable<IDecksteriaDeck> Decks => feDecks.Select(kv => kv.Value);
 
-    public IEnumerable<SearchField> SearchFields { get; } = new SearchField[12]
+    public IEnumerable<SearchField> SearchFields { get; } = new SearchField[]
     {
         new(SearchFieldConstants.CharacterField),
         new(SearchFieldConstants.TitleField),
-        new(SearchFieldConstants.ColorField, Colors),
         new(SearchFieldConstants.ColorField, Colors),
         new(SearchFieldConstants.CostField, 1),
         new(SearchFieldConstants.ClassChangeCostField, 1),
@@ -145,7 +144,7 @@ internal abstract class FEFormat : IDecksteriaFormat
         return await GetFECardAsync(cardId);
     }
 
-    public async Task<IQueryable<IDecksteriaCard>> GetCardsAsync(IEnumerable<SearchFieldFilter>? filters = null, CancellationToken cancellationToken = default)
+    public async Task<IQueryable<IDecksteriaCard>> GetCardsAsync(IEnumerable<ISearchFieldFilter>? filters = null, CancellationToken cancellationToken = default)
     {
         formatCards ??= await GetCardDataAsync(cancellationToken);
         cancellationToken.ThrowIfCancellationRequested();
@@ -161,7 +160,7 @@ internal abstract class FEFormat : IDecksteriaFormat
         // Get all cards that match the conditions of all filter functions
         return cardlist.Where(card => filterFuncs.All(func => func(card))).AsQueryable();
 
-        Func<FECard, bool> GetFilterFunction(SearchFieldFilter filter) => filter.SearchField.FieldName switch
+        Func<FECard, bool> GetFilterFunction(ISearchFieldFilter filter) => filter.SearchField.FieldName switch
         {
             SearchFieldConstants.CharacterField => (card) => filter.MatchesFilter(card.CharacterName),
             SearchFieldConstants.TitleField => (card) => filter.MatchesFilter(card.CardTitle),
@@ -312,7 +311,7 @@ internal abstract class FEFormat : IDecksteriaFormat
         return formatCards[cardId];
     }
 
-    private static bool RangeMatchesFilter(FECard card, SearchFieldFilter filter)
+    private static bool RangeMatchesFilter(FECard card, ISearchFieldFilter filter)
     {
         if (filter.Value == null)
         {
