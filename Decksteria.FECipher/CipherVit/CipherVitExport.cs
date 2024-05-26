@@ -21,9 +21,11 @@ internal sealed class CipherVitExport(IFECardListService feCardlistService) : ID
 
     public async Task<MemoryStream> SaveDecklistAsync(Decklist decklist, IDecksteriaFormat currentFormat, CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         var memoryStream = new MemoryStream();
         var streamWriter = new StreamWriter(memoryStream);
-        var cardlist = (await feCardlistService.GetCardList()).ToDictionary(kv => kv.CardId);
+        var cardlist = (await feCardlistService.GetCardList(cancellationToken)).ToDictionary(kv => kv.CardId);
         var cipherVitText = string.Empty;
 
         foreach (var cardart in decklist.Decks.SelectMany(card => card.Value))

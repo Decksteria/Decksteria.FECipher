@@ -12,9 +12,9 @@ using Decksteria.FECipher.Constants;
 using Decksteria.FECipher.Decks;
 using Decksteria.FECipher.Models;
 
-internal abstract class FEFormat : IDecksteriaFormat
+internal abstract partial class FEFormat : IDecksteriaFormat
 {
-    private static readonly string[] Colors = ["All", "Red", "Blue", "Yellow", "Purple", "Green", "Black", "White", "Brown", "Colorless"];
+    private readonly ReadOnlyDictionary<string, uint> Colors;
 
     private readonly ReadOnlyDictionary<string, IDecksteriaDeck> feDecks;
 
@@ -27,6 +27,35 @@ internal abstract class FEFormat : IDecksteriaFormat
             { DeckConstants.MainCharacterDeck, new FEMainCharacter(GetFECardAsync) },
             { DeckConstants.MainDeck, new FEMainDeck()}
         }.AsReadOnly();
+
+        var colorlessValue = ((uint) Enum.GetValues<Color>().Max()) * 2;
+        Colors = new Dictionary<string, uint>()
+        {
+            {nameof(Color.Red), (uint) Color.Red},
+            {nameof(Color.Blue), (uint) Color.Blue},
+            {nameof(Color.Yellow), (uint) Color.Yellow},
+            {nameof(Color.Purple), (uint) Color.Purple},
+            {nameof(Color.Green), (uint) Color.Green},
+            {nameof(Color.Black), (uint) Color.Black},
+            {nameof(Color.White), (uint) Color.White},
+            {nameof(Color.Brown), (uint) Color.Brown},
+            {"Colorless", colorlessValue }
+        }.AsReadOnly();
+
+        SearchFields = new SearchField[]
+        {
+            new(SearchFieldConstants.CharacterField),
+            new(SearchFieldConstants.TitleField),
+            new(SearchFieldConstants.ColorField, Colors),
+            new(SearchFieldConstants.CostField, 1),
+            new(SearchFieldConstants.ClassChangeCostField, 1),
+            new(SearchFieldConstants.ClassField),
+            new(SearchFieldConstants.TypeField),
+            new(SearchFieldConstants.RangeField, 0, 3),
+            new(SearchFieldConstants.AttackField, 3),
+            new(SearchFieldConstants.SupportField, 3),
+            new(SearchFieldConstants.SeriesField, 0, 12),
+        };
     }
 
     protected virtual Lazy<ReadOnlyDictionary<string, int>> SpecialCardLimits { get; private set; } = new(() => LoadSpecialCardLimits().AsReadOnly());
@@ -43,20 +72,7 @@ internal abstract class FEFormat : IDecksteriaFormat
 
     public IEnumerable<IDecksteriaDeck> Decks => feDecks.Select(kv => kv.Value);
 
-    public IEnumerable<SearchField> SearchFields { get; } = new SearchField[]
-    {
-        new(SearchFieldConstants.CharacterField),
-        new(SearchFieldConstants.TitleField),
-        new(SearchFieldConstants.ColorField, Colors),
-        new(SearchFieldConstants.CostField, 1),
-        new(SearchFieldConstants.ClassChangeCostField, 1),
-        new(SearchFieldConstants.ClassField),
-        new(SearchFieldConstants.TypeField),
-        new(SearchFieldConstants.RangeField, 0, 3),
-        new(SearchFieldConstants.AttackField, 3),
-        new(SearchFieldConstants.SupportField, 3),
-        new(SearchFieldConstants.SeriesField, 0, 12),
-    };
+    public IEnumerable<SearchField> SearchFields { get; }
 
     public async Task<bool> CheckCardCountAsync(long cardId, IReadOnlyDictionary<string, IEnumerable<long>> decklist, CancellationToken cancellationToken = default)
     {
