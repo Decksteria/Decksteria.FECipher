@@ -9,9 +9,14 @@ using Decksteria.FECipher.Constants;
 using Decksteria.FECipher.Models;
 using Decksteria.FECipher.Services;
 
-internal class FEUnlimited(IFECardListService cardListService) : FEFormat
+internal class FEUnlimited : FEFormat
 {
-    private readonly IFECardListService cardListService = cardListService;
+    private readonly IFECardListService cardListService;
+
+    public FEUnlimited(IFECardListService cardListService)
+    {
+        this.cardListService = cardListService;
+    }
 
     public override string Name => FormatConstants.Unlimited;
 
@@ -23,7 +28,7 @@ internal class FEUnlimited(IFECardListService cardListService) : FEFormat
 
     protected override async Task<ReadOnlyDictionary<long, FECard>> GetCardDataAsync(CancellationToken cancellationToken = default!)
     {
-        var cardlist = await cardListService.GetCardList();
+        var cardlist = await cardListService.GetCardList(cancellationToken);
         return cardlist?.ToDictionary(card => card.CardId).AsReadOnly() ?? new(new Dictionary<long, FECard>());
     }
 }

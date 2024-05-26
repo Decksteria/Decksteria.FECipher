@@ -12,11 +12,13 @@ using Decksteria.FECipher.Constants;
 using Decksteria.FECipher.Decks;
 using Decksteria.FECipher.Models;
 
-internal abstract class FEFormat : IDecksteriaFormat
+internal abstract partial class FEFormat : IDecksteriaFormat
 {
-    private static readonly string[] Colors = ["All", "Red", "Blue", "Yellow", "Purple", "Green", "Black", "White", "Brown", "Colorless"];
+    private readonly ReadOnlyDictionary<string, uint> Colors;
 
     private readonly ReadOnlyDictionary<string, IDecksteriaDeck> feDecks;
+
+    private readonly uint colourlessValue;
 
     private ReadOnlyDictionary<long, FECard>? formatCards;
 
@@ -27,6 +29,35 @@ internal abstract class FEFormat : IDecksteriaFormat
             { DeckConstants.MainCharacterDeck, new FEMainCharacter(GetFECardAsync) },
             { DeckConstants.MainDeck, new FEMainDeck()}
         }.AsReadOnly();
+
+        colourlessValue = ((uint) Enum.GetValues<Colour>().Max()) * 2;
+        Colors = new Dictionary<string, uint>()
+        {
+            {nameof(Colour.Red), (uint) Colour.Red},
+            {nameof(Colour.Blue), (uint) Colour.Blue},
+            {nameof(Colour.Yellow), (uint) Colour.Yellow},
+            {nameof(Colour.Purple), (uint) Colour.Purple},
+            {nameof(Colour.Green), (uint) Colour.Green},
+            {nameof(Colour.Black), (uint) Colour.Black},
+            {nameof(Colour.White), (uint) Colour.White},
+            {nameof(Colour.Brown), (uint) Colour.Brown},
+            {nameof(Colour.Colourless), colourlessValue }
+        }.AsReadOnly();
+
+        SearchFields = new SearchField[]
+        {
+            new(SearchFieldConstants.CharacterField),
+            new(SearchFieldConstants.TitleField),
+            new(SearchFieldConstants.ColorField, Colors),
+            new(SearchFieldConstants.CostField, 1),
+            new(SearchFieldConstants.ClassChangeCostField, 1),
+            new(SearchFieldConstants.ClassField),
+            new(SearchFieldConstants.TypeField),
+            new(SearchFieldConstants.RangeField, 0, 3),
+            new(SearchFieldConstants.AttackField, 3),
+            new(SearchFieldConstants.SupportField, 3),
+            new(SearchFieldConstants.SeriesField, 0, 12),
+        };
     }
 
     protected virtual Lazy<ReadOnlyDictionary<string, int>> SpecialCardLimits { get; private set; } = new(() => LoadSpecialCardLimits().AsReadOnly());
@@ -43,21 +74,7 @@ internal abstract class FEFormat : IDecksteriaFormat
 
     public IEnumerable<IDecksteriaDeck> Decks => feDecks.Select(kv => kv.Value);
 
-    public IEnumerable<SearchField> SearchFields { get; } = new SearchField[12]
-    {
-        new(SearchFieldConstants.CharacterField),
-        new(SearchFieldConstants.TitleField),
-        new(SearchFieldConstants.ColorField, Colors),
-        new(SearchFieldConstants.ColorField, Colors),
-        new(SearchFieldConstants.CostField, 1),
-        new(SearchFieldConstants.ClassChangeCostField, 1),
-        new(SearchFieldConstants.ClassField),
-        new(SearchFieldConstants.TypeField),
-        new(SearchFieldConstants.RangeField, 0, 3),
-        new(SearchFieldConstants.AttackField, 3),
-        new(SearchFieldConstants.SupportField, 3),
-        new(SearchFieldConstants.SeriesField, 0, 12),
-    };
+    public IEnumerable<SearchField> SearchFields { get; }
 
     public async Task<bool> CheckCardCountAsync(long cardId, IReadOnlyDictionary<string, IEnumerable<long>> decklist, CancellationToken cancellationToken = default)
     {
@@ -81,7 +98,6 @@ internal abstract class FEFormat : IDecksteriaFormat
         return decklist.SelectMany(deck => deck.Value).Count(cId => formatCards.GetValueOrDefault(cId)?.Name == card.Name) < 4;
     }
 
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0046:Convert to conditional expression", Justification = "Code is not more readable when converted to a conditional expression.")]
     public async Task<int> CompareCardsAsync(long cardId1, long cardId2, CancellationToken cancellationToken = default)
     {
         if (cardId1 == cardId2)
@@ -146,7 +162,7 @@ internal abstract class FEFormat : IDecksteriaFormat
         return await GetFECardAsync(cardId);
     }
 
-    public async Task<IQueryable<IDecksteriaCard>> GetCardsAsync(IEnumerable<SearchFieldFilter>? filters = null, CancellationToken cancellationToken = default)
+    public async Task<IQueryable<IDecksteriaCard>> GetCardsAsync(IEnumerable<ISearchFieldFilter>? filters = null, CancellationToken cancellationToken = default)
     {
         formatCards ??= await GetCardDataAsync(cancellationToken);
         cancellationToken.ThrowIfCancellationRequested();
@@ -162,11 +178,11 @@ internal abstract class FEFormat : IDecksteriaFormat
         // Get all cards that match the conditions of all filter functions
         return cardlist.Where(card => filterFuncs.All(func => func(card))).AsQueryable();
 
-        Func<FECard, bool> GetFilterFunction(SearchFieldFilter filter) => filter.SearchField.FieldName switch
+        Func<FECard, bool> GetFilterFunction(ISearchFieldFilter filter) => filter.SearchField.FieldName switch
         {
             SearchFieldConstants.CharacterField => (card) => filter.MatchesFilter(card.CharacterName),
             SearchFieldConstants.TitleField => (card) => filter.MatchesFilter(card.CardTitle),
-            SearchFieldConstants.ColorField => (card) => card.Colors.Any(filter.MatchesFilter),
+            SearchFieldConstants.ColorField => (card) => ColoursMatchOverride(card.ColoursValue, filter),
             SearchFieldConstants.CostField => (card) => filter.MatchesFilter(card.Cost),
             SearchFieldConstants.ClassChangeCostField => (card) => filter.MatchesFilter(card.ClassChangeCost),
             SearchFieldConstants.ClassField => (card) => filter.MatchesFilter(card.CharacterName),
@@ -177,6 +193,27 @@ internal abstract class FEFormat : IDecksteriaFormat
             SearchFieldConstants.SeriesField => (card) => card.AltArts.Select(art => art.SeriesNo).Any(filter.MatchesFilter),
             _ => throw new ArgumentException("Invalid Search Field.", filter.SearchField.FieldName)
         };
+
+        bool ColoursMatchOverride(Colour cardColor, ISearchFieldFilter filter)
+        {
+            var colourValue = (uint) cardColor;
+            if (cardColor != Colour.Colourless)
+            {
+                return filter.MatchesFilter(colourValue);
+            }
+
+            if (filter.Value is not uint uintValue || (uintValue & colourlessValue) == 0)
+            {
+                return false;
+            }
+
+            return filter.Comparison switch
+            {
+                ComparisonType.Equals or ComparisonType.Contains or ComparisonType.GreaterThanOrEqual => true,
+                ComparisonType.NotEquals or ComparisonType.NotContains or ComparisonType.LessThan => false,
+                _ => false
+            };
+        }
     }
 
     public async Task<Dictionary<string, int>> GetDeckStatsAsync(IReadOnlyDictionary<string, IEnumerable<long>> decklist, bool isDetailed, CancellationToken cancellationToken = default)
@@ -313,8 +350,7 @@ internal abstract class FEFormat : IDecksteriaFormat
         return formatCards[cardId];
     }
 
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0066:Convert switch statement to expression", Justification = "Range matching only uses listed Comparison Types.")]
-    private static bool RangeMatchesFilter(FECard card, SearchFieldFilter filter)
+    private static bool RangeMatchesFilter(FECard card, ISearchFieldFilter filter)
     {
         if (filter.Value == null)
         {
@@ -323,22 +359,15 @@ internal abstract class FEFormat : IDecksteriaFormat
 
         var value = Convert.ToInt32(filter.Value);
 
-        switch (filter.Comparison)
+        return filter.Comparison switch
         {
-            case ComparisonType.Equals:
-                return value >= card.MinRange && value <= card.MaxRange;
-            case ComparisonType.NotEquals:
-                return value <= card.MinRange || value >= card.MaxRange;
-            case ComparisonType.GreaterThan:
-                return value < card.MaxRange;
-            case ComparisonType.GreaterThanOrEqual:
-                return value <= card.MaxRange;
-            case ComparisonType.LessThan:
-                return value > card.MinRange;
-            case ComparisonType.LessThanOrEqual:
-                return value >= card.MinRange;
-        }
-
-        return false;
+            ComparisonType.Equals => value >= card.MinRange && value <= card.MaxRange,
+            ComparisonType.NotEquals => value <= card.MinRange || value >= card.MaxRange,
+            ComparisonType.GreaterThan => value < card.MaxRange,
+            ComparisonType.GreaterThanOrEqual => value <= card.MaxRange,
+            ComparisonType.LessThan => value > card.MinRange,
+            ComparisonType.LessThanOrEqual => value >= card.MinRange,
+            _ => false,
+        };
     }
 }
