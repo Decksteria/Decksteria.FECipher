@@ -14,11 +14,9 @@ using Decksteria.FECipher.Services;
 
 internal sealed class LackeyCCGExport(IFECardListService feCardlistService) : IDecksteriaExport
 {
-    public string Name => "LackeyCCG";
-
     public string FileType => ".dek";
 
-    public string Label => "To LackeyCCG";
+    public string Label => "LackeyCCG";
 
     public IFECardListService feCardlistService = feCardlistService;
 

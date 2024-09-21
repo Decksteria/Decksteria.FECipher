@@ -14,13 +14,10 @@ using Decksteria.FECipher.Models;
 using Decksteria.FECipher.Services;
 
 internal sealed class LackeyCCGImport(IFECardListService feCardlistService) : IDecksteriaImport
-
 {
-    public string Name => "LackeyCCG";
-
     public string FileType => ".dek";
 
-    public string Label => "From LackeyCCG";
+    public string Label => "LackeyCCG";
 
     public IFECardListService feCardlistService = feCardlistService;
 

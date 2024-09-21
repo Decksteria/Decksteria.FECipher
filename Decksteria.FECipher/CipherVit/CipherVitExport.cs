@@ -13,11 +13,9 @@ internal sealed class CipherVitExport(IFECardListService feCardlistService) : ID
 {
     private readonly IFECardListService feCardlistService = feCardlistService;
 
-    public string Name => "CipherVit";
-
     public string FileType => ".fe0d";
 
-    public string Label => "From CipherVit";
+    public string Label => "CipherVit";
 
     public async Task<MemoryStream> SaveDecklistAsync(Decklist decklist, IDecksteriaFormat currentFormat, CancellationToken cancellationToken = default)
     {
