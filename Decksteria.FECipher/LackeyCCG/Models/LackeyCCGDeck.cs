@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Xml.Serialization;
 
 [XmlRoot("deck")]
-internal sealed class LackeyCCGDeck
+public sealed class LackeyCCGDeck
 {
     [XmlAttribute("version")]
     public string Version { get; set; } = "0.8";
@@ -13,9 +13,5 @@ internal sealed class LackeyCCGDeck
     public LackeyCCGMeta Metadata { get; set; } = new LackeyCCGMeta();
 
     [XmlElement("superzone")]
-    public List<LackeyCCGSuperZone> Decks { get; set; } =
-    [
-        new() { Name = "Deck", Cards = [] },
-        new() { Name = "MC", Cards = [] }
-    ];
+    public List<LackeyCCGSuperZone> Decks { get; set; } = [];
 }

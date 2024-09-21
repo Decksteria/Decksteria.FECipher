@@ -1,4 +1,4 @@
-namespace Decksteria.FECipher.LackeyCCG;
+namespace Decksteria.FECipher.CipherVit;
 
 using System;
 using System.Collections.Generic;
@@ -14,11 +14,9 @@ using Decksteria.FECipher.Services;
 
 internal sealed class CipherVitImport(IFECardListService feCardlistService) : IDecksteriaImport
 {
-    public string Name => "CipherVit";
-
     public string FileType => ".fe0d";
 
-    public string Label => "From CipherVit";
+    public string Label => "CipherVit";
 
     public IFECardListService feCardlistService = feCardlistService;
 
