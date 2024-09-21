@@ -1,5 +1,6 @@
 namespace Decksteria.FECipher.LackeyCCG;
 
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -24,23 +25,22 @@ internal sealed class LackeyCCGImport(IFECardListService feCardlistService) : ID
     public async Task<Decklist> LoadDecklistAsync(MemoryStream memoryStream, IDecksteriaFormat currentFormat, CancellationToken cancellationToken = default)
     {
         var reader = new StreamReader(memoryStream);
-        var textFile = await reader.ReadToEndAsync(cancellationToken);
 
         // Change Format
         var currentFormatName = currentFormat.Name;
         var xmlSerializer = new XmlSerializer(typeof(LackeyCCGDeck));
-
         if (xmlSerializer.Deserialize(memoryStream) is not LackeyCCGDeck lackeyDeck)
         {
-            return new Decklist(FECipher.PlugInName, currentFormatName, new Dictionary<string, IEnumerable<CardArtId>>());
+            throw new InvalidDataException("File is not a valid LackeyCCG deck file.");
         }
 
-        var mcZone = lackeyDeck.Decks.First(deck => deck.Name == "MC");
-        var mainZone = lackeyDeck.Decks.First(deck => deck.Name == "Deck");
-        var lackeyDictionary = await GetLackeyCCGDictionary();
+        var mcZone = lackeyDeck.Decks.FirstOrDefault(deck => deck.Name == "MC");
+        var mainZone = lackeyDeck.Decks.FirstOrDefault(deck => deck.Name == "Deck");
 
-        var mainCharDeck = mcZone.Cards.Select(card => lackeyDictionary.GetValueOrDefault(card.Name.Id)).Where(card => card != null).Select(card => card!);
-        var mainDeck = mainZone.Cards.Select(card => lackeyDictionary.GetValueOrDefault(card.Name.Id)).Where(card => card != null).Select(card => card!);
+        var usedLackeyCCGIds = lackeyDeck.Decks.SelectMany(decks => decks.Cards.Select(card => card.Name.Id));
+        var lackeyDictionary = await GetLackeyCCGDictionary(usedLackeyCCGIds);
+        var mainCharDeck = mcZone?.Cards.Select(card => GetCardArtId(card.Name.Id)).Where(card => card != null).Select(card => card!) ?? [];
+        var mainDeck = mainZone?.Cards.Select(card => GetCardArtId(card.Name.Id)).Where(card => card != null).Select(card => card!) ?? [];
 
         var file = new Decklist(FECipher.PlugInName, currentFormatName, new Dictionary<string, IEnumerable<CardArtId>>()
         {
@@ -48,18 +48,21 @@ internal sealed class LackeyCCGImport(IFECardListService feCardlistService) : ID
             { DeckConstants.MainDeck, mainDeck }
         });
         return file;
+
+        CardArtId? GetCardArtId(string lackeyCCGId) => lackeyDictionary.GetValueOrDefault(lackeyCCGId);
     }
 
-    private async Task<IReadOnlyDictionary<string, CardArtId>> GetLackeyCCGDictionary()
+    private async Task<IReadOnlyDictionary<string, CardArtId>> GetLackeyCCGDictionary(IEnumerable<string> lackeyIds)
     {
         var dictionary = new Dictionary<string, CardArtId>();
         var cardlist = await feCardlistService.GetCardList();
-        var arts = cardlist.SelectMany(card => card.AltArts.Select(art => ToLackeyCCGKeyValue(card, art)));
-        return arts.ToDictionary(kv => kv.Key, kv => kv.Value).AsReadOnly();
+        var arts = cardlist.SelectMany(card => card.AltArts.Where(art => lackeyIds.Contains(art.LackeyCCGId)).Select(art => (card, art)));
+        return arts.GroupBy(feCardArt => feCardArt.art.LackeyCCGId)
+            .ToDictionary(kv => kv.Key, kv => ToCardArtId(kv.FirstOrDefault())).AsReadOnly();
 
-        static KeyValuePair<string, CardArtId> ToLackeyCCGKeyValue(FECard card, FEAlternateArts art)
+        static CardArtId ToCardArtId((FECard card, FEAlternateArts art) feCardArt)
         {
-            return new KeyValuePair<string, CardArtId>(art.LackeyCCGId, new CardArtId(card.CardId, art.ArtId));
+            return new(feCardArt.card.CardId, feCardArt.art.ArtId);
         }
     }
 }
