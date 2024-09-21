@@ -2,7 +2,7 @@
 
 using System.Xml.Serialization;
 
-internal sealed class LackeyCCGMeta
+public sealed class LackeyCCGMeta
 {
     [XmlElement("game")]
     public string Game { get; set; } = "FECipher0";

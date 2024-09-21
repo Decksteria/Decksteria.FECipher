@@ -2,7 +2,7 @@
 
 using System.Xml.Serialization;
 
-internal sealed class LackeyCCGCard
+public sealed class LackeyCCGCard
 {
     // This is the element that represents the name of the card
     [XmlElement("name")]
