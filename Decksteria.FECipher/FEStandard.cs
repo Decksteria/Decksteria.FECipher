@@ -29,7 +29,7 @@ internal sealed class FEStandard : FEFormat
     protected override async Task<ReadOnlyDictionary<long, FECard>> GetCardDataAsync(CancellationToken cancellationToken = default!)
     {
         var cardlist = await cardListService.GetCardList(cancellationToken);
-        cardlist = cardlist?.Where(card => card.AltArts.Any(art => art.SeriesNo > 4));
+        cardlist = cardlist?.Where(card => card.AltArts.Any(art => art.SeriesNo >= FormatConstants.StandardSeriesMinimum));
         return cardlist?.ToDictionary(card => card.CardId).AsReadOnly() ?? new(new Dictionary<long, FECard>());
     }
 }
