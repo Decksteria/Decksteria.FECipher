@@ -38,11 +38,11 @@ internal sealed class LackeyCCGImport(IFECardListService feCardlistService) : ID
         var mainZone = lackeyDeck.Decks.FirstOrDefault(deck => deck.Name == "Deck");
 
         var usedLackeyCCGIds = lackeyDeck.Decks.SelectMany(decks => decks.Cards.Select(card => card.Name.Id));
-        var lackeyDictionary = await GetLackeyCCGDictionary(usedLackeyCCGIds);
+        var (lackeyDictionary, newFormatName) = await GetLackeyCCGDictionaryAndFormat(usedLackeyCCGIds, currentFormatName);
         var mainCharDeck = mcZone?.Cards.Select(card => GetCardArtId(card.Name.Id)).Where(card => card != null).Select(card => card!) ?? [];
         var mainDeck = mainZone?.Cards.Select(card => GetCardArtId(card.Name.Id)).Where(card => card != null).Select(card => card!) ?? [];
 
-        var file = new Decklist(FECipher.PlugInName, currentFormatName, new Dictionary<string, IEnumerable<CardArtId>>()
+        var file = new Decklist(FECipher.PlugInName, newFormatName, new Dictionary<string, IEnumerable<CardArtId>>()
         {
             { DeckConstants.MainCharacterDeck, mainCharDeck },
             { DeckConstants.MainDeck, mainDeck }
@@ -52,16 +52,21 @@ internal sealed class LackeyCCGImport(IFECardListService feCardlistService) : ID
         CardArtId? GetCardArtId(string lackeyCCGId) => lackeyDictionary.GetValueOrDefault(lackeyCCGId);
     }
 
-    private async Task<IReadOnlyDictionary<string, CardArtId>> GetLackeyCCGDictionary(IEnumerable<string> lackeyIds)
+    private async Task<(IReadOnlyDictionary<string, CardArtId>, string)> GetLackeyCCGDictionaryAndFormat(IEnumerable<string> lackeyIds, string currentDeckFormat)
     {
-        var dictionary = new Dictionary<string, CardArtId>();
         var cardlist = await feCardlistService.GetCardList();
         var arts = cardlist.SelectMany(card => card.AltArts.Where(art => lackeyIds.Contains(art.LackeyCCGId)).Select(art => (card, art)));
-        return arts.GroupBy(feCardArt => feCardArt.art.LackeyCCGId)
+        var dictionary = arts.GroupBy(feCardArt => feCardArt.art.LackeyCCGId)
             .ToDictionary(kv => kv.Key, kv => ToCardArtId(kv.FirstOrDefault())).AsReadOnly();
+        return (dictionary, currentDeckFormat);
 
-        static CardArtId ToCardArtId((FECard card, FEAlternateArts art) feCardArt)
+        CardArtId ToCardArtId((FECard card, FEAlternateArts art) feCardArt)
         {
+            if (currentDeckFormat == FormatConstants.Standard && feCardArt.card.AltArts.All(a => a.SeriesNo < FormatConstants.StandardSeriesMinimum))
+            {
+                currentDeckFormat = FormatConstants.Unlimited;
+            }
+
             return new(feCardArt.card.CardId, feCardArt.art.ArtId);
         }
     }
