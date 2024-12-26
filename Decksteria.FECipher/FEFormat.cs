@@ -313,7 +313,7 @@ internal abstract partial class FEFormat : IDecksteriaFormat
 
     public Task<IDecksteriaDeck> GetDefaultDeckAsync(long cardId, CancellationToken cancellationToken = default) => Task.FromResult(feDecks[DeckConstants.MainDeck]);
 
-    public async Task<bool> IsDecklistLegal(IReadOnlyDictionary<string, IEnumerable<long>> decklist, CancellationToken cancellationToken = default)
+    public async Task<bool> IsDecklistLegalAsync(IReadOnlyDictionary<string, IEnumerable<long>> decklist, CancellationToken cancellationToken = default)
     {
         var mainCharacterDeckLegal = await feDecks[DeckConstants.MainCharacterDeck].IsDeckValidAsync(decklist[DeckConstants.MainCharacterDeck], cancellationToken);
         return mainCharacterDeckLegal && decklist[DeckConstants.MainDeck].Any();
