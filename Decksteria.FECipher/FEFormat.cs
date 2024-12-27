@@ -245,12 +245,7 @@ internal abstract partial class FEFormat : IDecksteriaFormat
                 continue;
             }
 
-            mainCharacterNames += card!.Name == mainCharacter?.Name ? 1 : 0;
-
-            if (!isDetailed)
-            {
-                continue;
-            }
+            mainCharacterNames += card!.CharacterName == mainCharacter?.CharacterName ? 1 : 0;
 
             // Range Counting
             if (card.MinRange == 0 && card.MaxRange == 0)
@@ -273,6 +268,12 @@ internal abstract partial class FEFormat : IDecksteriaFormat
                 range3++;
             }
 
+
+            if (!isDetailed)
+            {
+                continue;
+            }
+
             // Support Counting
             switch (card.Support)
             {
@@ -291,17 +292,17 @@ internal abstract partial class FEFormat : IDecksteriaFormat
             }
         }
 
-        var returnDictionary = new Dictionary<string, int>()
+        var returnDictionary = new Dictionary<string, int>
         {
-            {"Main Characters", mainCharacterNames },
+            { "Main Characters", mainCharacterNames },
+            { "Range 0", range0 },
+            { "Range 1", range1 },
+            { "Range 2", range2 },
+            { "Range 3", range3 }
         };
 
         if (isDetailed)
         {
-            returnDictionary.Add("Range 0", range0);
-            returnDictionary.Add("Range 1", range1);
-            returnDictionary.Add("Range 2", range2);
-            returnDictionary.Add("Range 3", range3);
             returnDictionary.Add("Support 0", support0);
             returnDictionary.Add("Support 10", support10);
             returnDictionary.Add("Support 20", support20);
