@@ -242,6 +242,7 @@ internal abstract partial class FEFormat : IDecksteriaFormat
             { "Male", 0 },
             { "Female", 0 }
         };
+        var costsCount = new Dictionary<string, int>();
 
         // Count Cards
         foreach (var card in allCards)
@@ -298,6 +299,7 @@ internal abstract partial class FEFormat : IDecksteriaFormat
 
             AddOrIncrementDictionary(colourCount, card.Colors);
             AddOrIncrementDictionary(traitsCount, card.Types);
+            AddOrIncrementDictionary(costsCount, $"Cost {card.Cost}");
         }
 
         var returnDictionary = new Dictionary<string, int>
@@ -323,6 +325,12 @@ internal abstract partial class FEFormat : IDecksteriaFormat
 
             var types = traitsCount.OrderByDescending(kv => kv.Value);
             foreach (var colourKeyValue in types)
+            {
+                returnDictionary.Add(colourKeyValue.Key, colourKeyValue.Value);
+            }
+
+            var costs = costsCount.OrderBy(kv => kv.Key);
+            foreach (var colourKeyValue in costs)
             {
                 returnDictionary.Add(colourKeyValue.Key, colourKeyValue.Value);
             }
