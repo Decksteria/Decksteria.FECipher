@@ -236,6 +236,12 @@ internal abstract partial class FEFormat : IDecksteriaFormat
         var support30 = 0;
 
         var allCards = decklist.SelectMany(kv => kv.Value.Select(id => formatCards.GetValueOrDefault(id)));
+        var colourCount = new Dictionary<string, int>();
+        var traitsCount = new Dictionary<string, int>()
+        {
+            { "Male", 0 },
+            { "Female", 0 }
+        };
 
         // Count Cards
         foreach (var card in allCards)
@@ -268,12 +274,6 @@ internal abstract partial class FEFormat : IDecksteriaFormat
                 range3++;
             }
 
-
-            if (!isDetailed)
-            {
-                continue;
-            }
-
             // Support Counting
             switch (card.Support)
             {
@@ -290,6 +290,14 @@ internal abstract partial class FEFormat : IDecksteriaFormat
                     support30++;
                     break;
             }
+
+            if (!isDetailed)
+            {
+                continue;
+            }
+
+            AddOrIncrementDictionary(colourCount, card.Colors);
+            AddOrIncrementDictionary(traitsCount, card.Types);
         }
 
         var returnDictionary = new Dictionary<string, int>
@@ -298,18 +306,44 @@ internal abstract partial class FEFormat : IDecksteriaFormat
             { "Range 0", range0 },
             { "Range 1", range1 },
             { "Range 2", range2 },
-            { "Range 3", range3 }
+            { "Range 3", range3 },
+            { "Support 0", support0 },
+            { "Support 10", support10 },
+            { "Support 20", support20 },
+            { "Support 30", support30 }
         };
 
         if (isDetailed)
         {
-            returnDictionary.Add("Support 0", support0);
-            returnDictionary.Add("Support 10", support10);
-            returnDictionary.Add("Support 20", support20);
-            returnDictionary.Add("Support 30", support30);
+            var colours = colourCount.OrderByDescending(kv => kv.Value);
+            foreach (var colourKeyValue in colours)
+            {
+                returnDictionary.Add(colourKeyValue.Key, colourKeyValue.Value);
+            }
+
+            var types = traitsCount.OrderByDescending(kv => kv.Value);
+            foreach (var colourKeyValue in types)
+            {
+                returnDictionary.Add(colourKeyValue.Key, colourKeyValue.Value);
+            }
         }
 
         return returnDictionary;
+
+        static void AddOrIncrementDictionary(Dictionary<string, int> dictionary, params IEnumerable<string> keys)
+        {
+            foreach (var key in keys)
+            {
+                // Attempt to add to the dictionary.
+                if (dictionary.TryAdd(key, 1))
+                {
+                    continue;
+                }
+
+                // If it already exists, we just want to increment it.
+                dictionary[key] += 1;
+            }
+        }
     }
 
     public Task<IDecksteriaDeck> GetDefaultDeckAsync(long cardId, CancellationToken cancellationToken = default) => Task.FromResult(feDecks[DeckConstants.MainDeck]);
