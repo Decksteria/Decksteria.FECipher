@@ -216,7 +216,7 @@ internal abstract partial class FEFormat : IDecksteriaFormat
         }
     }
 
-    public async Task<Dictionary<string, int>> GetDeckStatsAsync(IReadOnlyDictionary<string, IEnumerable<long>> decklist, bool isDetailed, CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<DeckStatisticSection>> GetDeckStatsAsync(IReadOnlyDictionary<string, IEnumerable<long>> decklist, bool isDetailed, CancellationToken cancellationToken = default)
     {
         formatCards ??= await GetCardDataAsync(cancellationToken);
 
@@ -235,22 +235,25 @@ internal abstract partial class FEFormat : IDecksteriaFormat
         var support20 = 0;
         var support30 = 0;
 
-        var allCards = decklist.SelectMany(kv => kv.Value.Select(id => formatCards.GetValueOrDefault(id)));
+        var allCards = decklist.SelectMany(kv => kv.Value);
+        var colourCount = new Dictionary<string, int>();
+        var traitsCount = new Dictionary<string, int>()
+        {
+            { "Male", 0 },
+            { "Female", 0 }
+        };
+        var costsCount = new Dictionary<string, int>();
 
         // Count Cards
-        foreach (var card in allCards)
+        foreach (var cardId in allCards)
         {
-            if (card == null)
+            var card = formatCards.GetValueOrDefault(cardId);
+            if (card is null)
             {
                 continue;
             }
 
-            mainCharacterNames += card!.Name == mainCharacter?.Name ? 1 : 0;
-
-            if (!isDetailed)
-            {
-                continue;
-            }
+            mainCharacterNames += card!.CharacterName == mainCharacter?.CharacterName ? 1 : 0;
 
             // Range Counting
             if (card.MinRange == 0 && card.MaxRange == 0)
@@ -289,26 +292,75 @@ internal abstract partial class FEFormat : IDecksteriaFormat
                     support30++;
                     break;
             }
+
+            if (!isDetailed)
+            {
+                continue;
+            }
+
+            AddOrIncrementDictionary(colourCount, card.Colors);
+            AddOrIncrementDictionary(traitsCount, card.Types);
+            AddOrIncrementDictionary(costsCount, $"Cost {card.Cost}");
         }
 
-        var returnDictionary = new Dictionary<string, int>()
+        var returnDictionary = new Dictionary<string, int>
         {
-            {"Main Characters", mainCharacterNames },
+            { "Main Characters", mainCharacterNames },
+            { "Range 0", range0 },
+            { "Range 1", range1 },
+            { "Range 2", range2 },
+            { "Range 3", range3 },
+            { "Support 0", support0 },
+            { "Support 10", support10 },
+            { "Support 20", support20 },
+            { "Support 30", support30 }
         };
 
-        if (isDetailed)
+        var baseStatistics = new DeckStatisticSection
         {
-            returnDictionary.Add("Range 0", range0);
-            returnDictionary.Add("Range 1", range1);
-            returnDictionary.Add("Range 2", range2);
-            returnDictionary.Add("Range 3", range3);
-            returnDictionary.Add("Support 0", support0);
-            returnDictionary.Add("Support 10", support10);
-            returnDictionary.Add("Support 20", support20);
-            returnDictionary.Add("Support 30", support30);
+            Label = "Basic",
+            OrderByCount = false,
+            Statistics = returnDictionary
+        };
+
+        if (!isDetailed)
+        {
+            return [baseStatistics];
         }
 
-        return returnDictionary;
+        return [
+            baseStatistics,
+            new() {
+                Label = "Colours",
+                OrderByCount = true,
+                Statistics = colourCount
+            },
+            new() {
+                Label = "Traits",
+                OrderByCount = true,
+                Statistics = traitsCount
+            },
+            new() {
+                Label = "Costs",
+                OrderByCount = false,
+                Statistics = costsCount.OrderBy(c => c.Key).ToDictionary()
+            }
+        ];
+
+        static void AddOrIncrementDictionary(Dictionary<string, int> dictionary, params IEnumerable<string> keys)
+        {
+            foreach (var key in keys)
+            {
+                // Attempt to add to the dictionary.
+                if (dictionary.TryAdd(key, 1))
+                {
+                    continue;
+                }
+
+                // If it already exists, we just want to increment it.
+                dictionary[key] += 1;
+            }
+        }
     }
 
     public Task<IDecksteriaDeck> GetDefaultDeckAsync(long cardId, CancellationToken cancellationToken = default) => Task.FromResult(feDecks[DeckConstants.MainDeck]);
