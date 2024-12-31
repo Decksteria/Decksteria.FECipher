@@ -216,7 +216,7 @@ internal abstract partial class FEFormat : IDecksteriaFormat
         }
     }
 
-    public async Task<Dictionary<string, int>> GetDeckStatsAsync(IReadOnlyDictionary<string, IEnumerable<long>> decklist, bool isDetailed, CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<DeckStatisticSection>> GetDeckStatsAsync(IReadOnlyDictionary<string, IEnumerable<long>> decklist, bool isDetailed, CancellationToken cancellationToken = default)
     {
         formatCards ??= await GetCardDataAsync(cancellationToken);
 
@@ -235,7 +235,7 @@ internal abstract partial class FEFormat : IDecksteriaFormat
         var support20 = 0;
         var support30 = 0;
 
-        var allCards = decklist.SelectMany(kv => kv.Value.Select(id => formatCards.GetValueOrDefault(id)));
+        var allCards = decklist.SelectMany(kv => kv.Value);
         var colourCount = new Dictionary<string, int>();
         var traitsCount = new Dictionary<string, int>()
         {
@@ -245,9 +245,10 @@ internal abstract partial class FEFormat : IDecksteriaFormat
         var costsCount = new Dictionary<string, int>();
 
         // Count Cards
-        foreach (var card in allCards)
+        foreach (var cardId in allCards)
         {
-            if (card == null)
+            var card = formatCards.GetValueOrDefault(cardId);
+            if (card is null)
             {
                 continue;
             }
@@ -315,28 +316,36 @@ internal abstract partial class FEFormat : IDecksteriaFormat
             { "Support 30", support30 }
         };
 
-        if (isDetailed)
+        var baseStatistics = new DeckStatisticSection
         {
-            var colours = colourCount.OrderByDescending(kv => kv.Value);
-            foreach (var colourKeyValue in colours)
-            {
-                returnDictionary.Add(colourKeyValue.Key, colourKeyValue.Value);
-            }
+            Label = "Basic",
+            OrderByCount = false,
+            Statistics = returnDictionary
+        };
 
-            var types = traitsCount.OrderByDescending(kv => kv.Value);
-            foreach (var colourKeyValue in types)
-            {
-                returnDictionary.Add(colourKeyValue.Key, colourKeyValue.Value);
-            }
-
-            var costs = costsCount.OrderBy(kv => kv.Key);
-            foreach (var colourKeyValue in costs)
-            {
-                returnDictionary.Add(colourKeyValue.Key, colourKeyValue.Value);
-            }
+        if (!isDetailed)
+        {
+            return [baseStatistics];
         }
 
-        return returnDictionary;
+        return [
+            baseStatistics,
+            new() {
+                Label = "Colours",
+                OrderByCount = true,
+                Statistics = colourCount
+            },
+            new() {
+                Label = "Traits",
+                OrderByCount = true,
+                Statistics = traitsCount
+            },
+            new() {
+                Label = "Costs",
+                OrderByCount = false,
+                Statistics = costsCount.OrderBy(c => c.Key).ToDictionary()
+            }
+        ];
 
         static void AddOrIncrementDictionary(Dictionary<string, int> dictionary, params IEnumerable<string> keys)
         {
