@@ -7,6 +7,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Decksteria.Core;
+using Decksteria.Core.Data;
 using Decksteria.Core.Models;
 using Decksteria.FECipher.Constants;
 using Decksteria.FECipher.Decks;
@@ -236,13 +237,11 @@ internal abstract partial class FEFormat : IDecksteriaFormat
         var support30 = 0;
 
         var allCards = decklist.SelectMany(kv => kv.Value);
-        var colourCount = new Dictionary<string, int>();
-        var traitsCount = new Dictionary<string, int>()
-        {
-            { "Male", 0 },
-            { "Female", 0 }
-        };
-        var costsCount = new Dictionary<string, int>();
+        var colourCount = new DeckStatisticDictionary();
+        var traitsCount = new DeckStatisticDictionary();
+        traitsCount.AddKey("Male");
+        traitsCount.AddKey("Female");
+        var costsCount = new DeckStatisticDictionary();
 
         // Count Cards
         foreach (var cardId in allCards)
@@ -298,12 +297,12 @@ internal abstract partial class FEFormat : IDecksteriaFormat
                 continue;
             }
 
-            AddOrIncrementDictionary(colourCount, card.Colors);
-            AddOrIncrementDictionary(traitsCount, card.Types);
-            AddOrIncrementDictionary(costsCount, $"Cost {card.Cost}");
+            AddOrIncrementValues(colourCount, card.Colors);
+            AddOrIncrementValues(traitsCount, card.Types);
+            AddOrIncrementValues(costsCount, $"Cost {card.Cost}");
         }
 
-        var returnDictionary = new Dictionary<string, int>
+        var returnDictionary = new DeckStatisticDictionary()
         {
             { "Main Characters", mainCharacterNames },
             { "Range 0", range0 },
@@ -328,6 +327,7 @@ internal abstract partial class FEFormat : IDecksteriaFormat
             return [baseStatistics];
         }
 
+        costsCount.SortKeys();
         return [
             baseStatistics,
             new() {
@@ -343,22 +343,15 @@ internal abstract partial class FEFormat : IDecksteriaFormat
             new() {
                 Label = "Costs",
                 OrderByCount = false,
-                Statistics = costsCount.OrderBy(c => c.Key).ToDictionary()
+                Statistics = costsCount
             }
         ];
 
-        static void AddOrIncrementDictionary(Dictionary<string, int> dictionary, params IEnumerable<string> keys)
+        static void AddOrIncrementValues(DeckStatisticDictionary dictionary, params IEnumerable<string> keys)
         {
             foreach (var key in keys)
             {
-                // Attempt to add to the dictionary.
-                if (dictionary.TryAdd(key, 1))
-                {
-                    continue;
-                }
-
-                // If it already exists, we just want to increment it.
-                dictionary[key] += 1;
+                dictionary.AddOrIncrementValue(key);
             }
         }
     }
