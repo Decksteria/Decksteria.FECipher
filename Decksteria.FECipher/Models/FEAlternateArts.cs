@@ -2,6 +2,7 @@
 
 using System.Text.Json.Serialization;
 using Decksteria.Core;
+using Decksteria.Core.Data;
 
 public sealed class FEAlternateArts : IDecksteriaCardArt
 {
@@ -44,4 +45,7 @@ public sealed class FEAlternateArts : IDecksteriaCardArt
     [JsonPropertyName("SeriesNo")]
     [JsonPropertyOrder(8)]
     public int SeriesNo { get; init; }
+
+    [JsonIgnore]
+    public DecksteriaImage Image => new(FileName, DownloadUrl);
 }
