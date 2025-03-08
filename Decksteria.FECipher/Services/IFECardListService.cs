@@ -7,5 +7,5 @@ using Decksteria.FECipher.Models;
 
 internal interface IFECardListService
 {
-    Task<IEnumerable<FECard>> GetCardList(CancellationToken cancellationToken = default);
+    public Task<IEnumerable<FECard>> GetCardList(CancellationToken cancellationToken = default);
 }
