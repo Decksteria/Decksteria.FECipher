@@ -81,22 +81,35 @@ internal abstract partial class FEFormat : IDecksteriaFormat
     {
         formatCards ??= await GetCardDataAsync(cancellationToken);
 
-        // Don't add if card can't be found
+        // If the card can't be found in the list of available cards,
+        // treat the maximum number of available cards as 0 and it will always reach the count.
         var card = formatCards.GetValueOrDefault(cardId);
         if (card == null)
-        {
-            return false;
-        }
-
-        // Cards that allow Infinite Copies
-        var maximum = SpecialCardLimits.Value.GetValueOrDefault(card.Name);
-        if (maximum == -1)
         {
             return true;
         }
 
-        // Maximum of 4 copies per name and not ID
-        return decklist.SelectMany(deck => deck.Value).Count(cId => formatCards.GetValueOrDefault(cId)?.Name == card.Name) < 4;
+        // Get the maximum number of copies allowed for this specific card.
+        var hasSpecialMaximum = SpecialCardLimits.Value.TryGetValue(card.Name, out var maximum);
+
+        // Any card that does not have a defined maximum has a default maximum of 4.
+        maximum = hasSpecialMaximum ? maximum : 4;
+        
+        if (maximum == -1)
+        {
+            // If the card has a maximum of infinite copies, defined by -1, skip the count.
+            // Return false as it will never reach its maximum count.
+            return false;
+        }
+        else if (maximum == 0)
+        {
+            // If the card has a maximum count of 0, skip the count.
+            // As it will always return true.
+            return true;
+        }
+
+        // If the card has reached its maximum count.
+        return decklist.SelectMany(deck => deck.Value).Count(cId => formatCards.GetValueOrDefault(cId)?.Name == card.Name) >= maximum;
     }
 
     public async Task<int> CompareCardsAsync(long cardId1, long cardId2, CancellationToken cancellationToken = default)
