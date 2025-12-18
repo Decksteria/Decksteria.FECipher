@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <NeutralLanguage>en</NeutralLanguage>
+    <TargetFramework>net10.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
