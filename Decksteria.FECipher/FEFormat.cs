@@ -94,7 +94,7 @@ internal abstract partial class FEFormat : IDecksteriaFormat
 
         // Any card that does not have a defined maximum has a default maximum of 4.
         maximum = hasSpecialMaximum ? maximum : 4;
-        
+
         if (maximum == -1)
         {
             // If the card has a maximum of infinite copies, defined by -1, skip the count.
@@ -108,8 +108,10 @@ internal abstract partial class FEFormat : IDecksteriaFormat
             return true;
         }
 
-        // If the card has reached its maximum count.
-        return decklist.SelectMany(deck => deck.Value).Count(cId => formatCards.GetValueOrDefault(cId)?.Name == card.Name) >= maximum;
+        // If the count is greater or equal to the maximum, then it has reached the maximum and returns true.
+        // If the count is less than the maximum, then it has not reached the maximum and returns false.
+        var count = decklist.SelectMany(deck => deck.Value).Count(cId => formatCards.GetValueOrDefault(cId)?.Name == card.Name);
+        return count < maximum;
     }
 
     public async Task<int> CompareCardsAsync(long cardId1, long cardId2, CancellationToken cancellationToken = default)
